@@ -17,7 +17,7 @@ fn main() {
 
     for i in answers {
         let parts = my_split(i);
-        count += count_equal_chars(parts);
+        count += count_equal_chars(&parts);
     }
 
     println!("{}", count);
@@ -32,7 +32,7 @@ fn my_split(input: &str) -> Vec<String> {
     result
 }
 
-fn count_equal_chars(input: Vec<String>) -> usize {
+fn count_equal_chars(input: &Vec<String>) -> usize {
     let mut count = 0usize;
     for i in input[0].chars() {
         let mut e = true;
