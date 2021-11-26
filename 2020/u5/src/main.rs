@@ -7,7 +7,7 @@ fn main() {
     let mut contents = String::new();
     buf_reader
         .read_to_string(&mut contents)
-        .expect("So ein scheiss");
+        .expect("Reading Errors");
 
     let seats: Vec<&str> = contents.split('\n').collect();
 
