@@ -18,7 +18,16 @@ fn main() {
         ids.push(val);
     }
 
-    println!("{:?}", ids)
+    ids.sort();
+
+    let mut last_id = 0;
+
+    for id in ids {
+        if id - last_id > 1 {
+            println!("{}", id - 1);
+        }
+        last_id = id;
+    }
 }
 
 fn get_row(input: &str) -> i32 {
