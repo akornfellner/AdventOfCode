@@ -1,6 +1,9 @@
 # Functions
 
 
+from types import resolve_bases
+
+
 def split_bags(input):
     l = input.split(" bags")
     name = l[0]
@@ -16,35 +19,29 @@ def split_bags(input):
 
     l = tmp
 
-    tmp = []
+    tmp = {}
 
     for i in l:
         for n in numbers:
             a = i.split(n)
             if len(a) > 1:
-                tmp.append(a[1])
+                tmp[a[1]] = int(n[1])
 
     l = tmp
 
     return {"name": name, "bags": l}
 
 
-def search_bag(name, target):
-    if name == target:
-        return False
+def count_bags(name):
+    if len(bags[name]) == 0:
+        return 1
 
-    if len(bags[name]) < 1:
-        return False
+    result = 1
 
-    if target in bags[name]:
-        return True
+    for bag, number in bags[name].items():
+        result += count_bags(bag) * number
 
-    found = False
-
-    for i in bags[name]:
-        found = found or search_bag(i, target)
-
-    return found
+    return result
 
 
 # Main Code
@@ -65,10 +62,6 @@ for i in tmp:
 
 target = "shiny gold"
 
-count = 0
+print(bags)
 
-for i in bags:
-    if search_bag(i, target):
-        count += 1
-
-print(count)
+print(count_bags(target) - 1)
