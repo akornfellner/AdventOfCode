@@ -5,5 +5,5 @@ This project has solutions for the puzzles of the [Advent of Code](https://adven
 There is one subdirectory for each year. In each year folder there are Rust/Python projects for each puzzle of the year
 
 ### Aims
-This code is just train coding with Rust and Python.
+This code was for training coding with Rust and Python.
 There is no guarantee that the solution offered is the best possible one.
