@@ -1,6 +1,3 @@
-from os import set_inheritable
-
-
 def size_from_line(line):
     values = line.split("x")
 
