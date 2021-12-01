@@ -10,7 +10,7 @@ impl Bag {
     pub fn new(name: &str, childs: Vec<(String, usize)>) -> Self {
         Bag {
             name: String::from(name),
-            childs: childs,
+            childs,
         }
     }
 
@@ -47,7 +47,7 @@ impl Bag {
         Bag::new(name, childs)
     }
 
-    pub fn get_bag(name: &str, bags: &Vec<Bag>) -> Vec<(String, usize)> {
+    pub fn get_bag(name: &str, bags: &[Bag]) -> Vec<(String, usize)> {
         for i in bags {
             if i.name == name {
                 return i.childs.clone();

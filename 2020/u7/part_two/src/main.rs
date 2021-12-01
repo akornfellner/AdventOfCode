@@ -13,7 +13,7 @@ fn main() {
         .read_to_string(&mut input)
         .expect("Reading Error");
 
-    let lines: Vec<&str> = input.split("\n").collect();
+    let lines: Vec<&str> = input.split('n').collect();
 
     let mut bags: Vec<Bag> = vec![];
 
@@ -26,8 +26,8 @@ fn main() {
     println!("{}", count_bags(target, &bags) - 1);
 }
 
-fn count_bags(name: &str, bags: &Vec<Bag>) -> usize {
-    if Bag::get_bag(name, bags).len() == 0 {
+fn count_bags(name: &str, bags: &[Bag]) -> usize {
+    if Bag::get_bag(name, bags).is_empty() {
         return 1;
     }
 
