@@ -18,7 +18,7 @@ fn main() {
         match c {
             '(' => floor += 1,
             ')' => floor -= 1,
-            _ => floor = floor,
+            _ => (),
         }
 
         match floor {

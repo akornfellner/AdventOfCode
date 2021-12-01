@@ -12,7 +12,7 @@ fn main() {
         .read_to_string(&mut input)
         .expect("Reading error");
 
-    let lines: Vec<&str> = input.split("\n").collect();
+    let lines: Vec<&str> = input.split('\n').collect();
 
     let mut result = 0usize;
 
@@ -32,7 +32,7 @@ struct Present {
 
 impl Present {
     fn new_from_line(line: &str) -> Self {
-        let chars: Vec<&str> = line.split("x").collect();
+        let chars: Vec<&str> = line.split('x').collect();
         Present {
             l: chars[0].parse().unwrap(),
             w: chars[1].parse().unwrap(),
@@ -41,9 +41,9 @@ impl Present {
     }
 
     fn get_size(&self) -> usize {
-        let a = &self.l * &self.w;
-        let b = &self.l * &self.h;
-        let c = &self.w * &self.h;
+        let a = self.l * self.w;
+        let b = self.l * self.h;
+        let c = self.w * self.h;
         let mut min = a;
 
         for i in [b, c] {
