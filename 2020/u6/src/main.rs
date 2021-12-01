@@ -25,18 +25,18 @@ fn main() {
 
 fn my_split(input: &str) -> Vec<String> {
     let mut result = vec![];
-    let arr: Vec<&str> = input.split("\n").collect();
+    let arr: Vec<&str> = input.split('\n').collect();
     for i in arr {
         result.push(String::from(i));
     }
     result
 }
 
-fn count_equal_chars(input: &Vec<String>) -> usize {
+fn count_equal_chars(input: &[String]) -> usize {
     let mut count = 0usize;
     for i in input[0].chars() {
         let mut e = true;
-        for s in input.clone() {
+        for s in input.to_owned() {
             if !char_in_string(i, &s) {
                 e = false;
             }
