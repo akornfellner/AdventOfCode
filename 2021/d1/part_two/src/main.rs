@@ -22,8 +22,10 @@ fn main() {
 
     let mut count = 0;
 
-    for i in 1..numbers.len() {
-        if numbers[i] > numbers[i - 1] {
+    for i in 3..numbers.len() {
+        let old_sum = numbers[i - 1] + numbers[i - 2] + numbers[i - 3];
+        let new_sum = numbers[i] + numbers[i - 1] + numbers[i - 2];
+        if new_sum > old_sum {
             count += 1;
         }
     }
