@@ -13,7 +13,7 @@ fn main() {
         .read_to_string(&mut input)
         .expect("Reading Error");
 
-    let lines: Vec<&str> = input.split("\n").collect();
+    let lines: Vec<&str> = input.split('\n').collect();
 
     let mut bags: Vec<Bag> = vec![];
 
@@ -33,17 +33,17 @@ fn main() {
     println!("{}", count);
 }
 
-fn search_bag(name: &str, target: &str, bags: &Vec<Bag>) -> bool {
+fn search_bag(name: &str, target: &str, bags: &[Bag]) -> bool {
     if name == target {
         return false;
     }
 
-    if Bag::get_bag(name, bags).len() < 1 {
+    if Bag::get_bag(name, bags).is_empty() {
         return false;
     }
 
     for i in Bag::get_bag(name, bags) {
-        if &i == target {
+        if i == target {
             return true;
         }
     }
