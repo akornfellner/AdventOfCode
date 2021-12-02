@@ -62,6 +62,4 @@ for i in tmp:
 
 target = "shiny gold"
 
-print(bags)
-
 print(count_bags(target) - 1)
