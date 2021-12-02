@@ -6,4 +6,4 @@ There is one subdirectory for each year. In each year folder there are Rust/Pyth
 
 ### Aims
 This code was for training coding with Rust and Python.
-There is no guarantee that the solution offered is the best one.
+There is no guarantee that the offered solution is the best one.
