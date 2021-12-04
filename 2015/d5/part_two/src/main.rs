@@ -12,7 +12,7 @@ fn main() {
         .read_to_string(&mut input)
         .expect("Reading Error");
 
-    let lines: Vec<&str> = input.split("\n").collect();
+    let lines: Vec<&str> = input.split('\n').collect();
 
     let mut count = 0usize;
 
