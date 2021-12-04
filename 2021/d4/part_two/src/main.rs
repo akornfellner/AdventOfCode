@@ -1,3 +1,5 @@
+use part_two::d4;
+
 fn main() {
-    println!("Hello, world!");
+    println!("{}", d4("input.txt"));
 }
