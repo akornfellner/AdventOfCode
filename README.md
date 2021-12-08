@@ -8,3 +8,5 @@ There is one subdirectory for each year. In each year folder there are Rust proj
 This code was for training coding with Rust.
 There is no guarantee that the offered solution is the best one.
 I tried to use as few offered crates as possible and create all data structs on my own.
+
+![](https://img.shields.io/badge/day%20📅-8-blue) ![](https://img.shields.io/badge/stars%20⭐-16-yellow) ![](https://img.shields.io/badge/days%20completed-8-red)
