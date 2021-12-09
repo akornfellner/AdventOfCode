@@ -3,7 +3,7 @@ use std::fs;
 pub fn solve(filename: &str) -> i32 {
     let input = fs::read_to_string(filename).unwrap();
 
-    let lines: Vec<&str> = input.split('\n').collect();
+    let lines: Vec<&str> = input.lines().collect();
 
     let mut numbers: Vec<Vec<i32>> = vec![];
 
