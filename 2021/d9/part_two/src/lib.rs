@@ -61,43 +61,37 @@ fn get_size(
 
     let rows = numbers.len();
     let cols = numbers[0].len();
-    let mut starti = -1;
-    let mut endi = 1;
-    let mut startj = -1;
-    let mut endj = 1;
-
-    if i == 0 {
-        starti = 0;
-    } else if i == rows - 1 {
-        endi = 0;
-    }
-
-    if j == 0 {
-        startj = 0;
-    } else if j == cols - 1 {
-        endj = 0;
-    }
 
     let mut sum = 1;
 
-    for k in starti..endi + 1 {
-        let index = (i as i32 + k) as usize;
-        if numbers[index][j] != 9 && k != 0 {
-            sum += match get_size(index, j, numbers, visited) {
-                Some(value) => value,
-                None => 0,
-            };
-        }
+    if i > 0 && numbers[i - 1][j] != 9 {
+        sum += match get_size(i - 1, j, numbers, visited) {
+            Some(value) => value,
+            None => 0,
+        };
     }
-    for k in startj..endj + 1 {
-        let index = (j as i32 + k) as usize;
-        if numbers[i][index] != 9 && k != 0 {
-            sum += match get_size(i, index, numbers, visited) {
-                Some(value) => value,
-                None => 0,
-            };
-        }
+
+    if j > 0 && numbers[i][j - 1] != 9 {
+        sum += match get_size(i, j - 1, numbers, visited) {
+            Some(value) => value,
+            None => 0,
+        };
     }
+
+    if i < rows - 1 && numbers[i + 1][j] != 9 {
+        sum += match get_size(i + 1, j, numbers, visited) {
+            Some(value) => value,
+            None => 0,
+        };
+    }
+
+    if j < cols - 1 && numbers[i][j + 1] != 9 {
+        sum += match get_size(i, j + 1, numbers, visited) {
+            Some(value) => value,
+            None => 0,
+        };
+    }
+
     Some(sum)
 }
 

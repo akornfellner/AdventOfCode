@@ -23,41 +23,23 @@ pub fn solve(filename: &str) -> i32 {
 
     for i in 0..rows {
         for j in 0..cols {
-            let mut starti = -1;
-            let mut endi = 1;
-            let mut startj = -1;
-            let mut endj = 1;
-
-            if i == 0 {
-                starti = 0;
-            } else if i == rows - 1 {
-                endi = 0;
+            if i > 0 && numbers[i][j] >= numbers[i - 1][j] {
+                continue;
             }
 
-            if j == 0 {
-                startj = 0;
-            } else if j == cols - 1 {
-                endj = 0;
+            if j > 0 && numbers[i][j] >= numbers[i][j - 1] {
+                continue;
             }
 
-            let mut is_min = true;
-
-            for k in starti..endi + 1 {
-                let index = (i as i32 + k) as usize;
-                if numbers[i][j] >= numbers[index][j] && k != 0 {
-                    is_min = false;
-                }
-            }
-            for k in startj..endj + 1 {
-                let index = (j as i32 + k) as usize;
-                if numbers[i][j] >= numbers[i][index] && k != 0 {
-                    is_min = false;
-                }
+            if i < rows - 1 && numbers[i][j] >= numbers[i + 1][j] {
+                continue;
             }
 
-            if is_min {
-                mins.push(numbers[i][j])
+            if j < cols - 1 && numbers[i][j] >= numbers[i][j + 1] {
+                continue;
             }
+
+            mins.push(numbers[i][j])
         }
     }
 
