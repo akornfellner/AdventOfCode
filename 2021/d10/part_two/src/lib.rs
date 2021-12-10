@@ -5,25 +5,30 @@ pub fn solve(filename: &str) -> usize {
 
     let lines: Vec<&str> = input.lines().collect();
 
-    let mut result = 0;
+    let mut scores: Vec<usize> = vec![];
 
     for line in lines {
-        result += proof_line(line);
+        match proof_line(line) {
+            Some(value) => {
+                scores.push(value);
+            }
+            None => {}
+        }
     }
-    result
+
+    scores.sort();
+
+    scores[scores.len() / 2]
 }
 
-fn proof_line(line: &str) -> usize {
+fn proof_line(line: &str) -> Option<usize> {
     let braces = HashMap::from([('(', ')'), ('{', '}'), ('[', ']'), ('<', '>')]);
     let open = vec!['(', '{', '[', '<'];
-    let points: HashMap<char, usize> =
-        HashMap::from([(')', 3), (']', 57), ('}', 1197), ('>', 25137)]);
+    let points: HashMap<char, usize> = HashMap::from([('(', 1), ('[', 2), ('{', 3), ('<', 4)]);
 
     let chars: Vec<char> = line.chars().collect();
 
     let mut stack: Vec<char> = vec![];
-
-    let mut sum = 0usize;
 
     for c in chars {
         if open.contains(&c) {
@@ -32,11 +37,20 @@ fn proof_line(line: &str) -> usize {
             let last = stack.pop().unwrap();
             let expect = braces[&last];
             if c != expect {
-                sum += points[&c];
+                return None;
             }
         }
     }
-    sum
+
+    let mut score = 0usize;
+
+    stack.reverse();
+    for c in stack {
+        score *= 5;
+        score += points[&c];
+    }
+
+    Some(score)
 }
 
 #[cfg(test)]
@@ -45,6 +59,6 @@ mod tests {
 
     #[test]
     fn it_works() {
-        assert_eq!(solve("input_test.txt"), 26397);
+        assert_eq!(solve("input_test.txt"), 288957);
     }
 }
