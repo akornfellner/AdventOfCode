@@ -8,15 +8,12 @@ pub fn solve(filename: &str) -> usize {
     let mut scores: Vec<usize> = vec![];
 
     for line in lines {
-        match proof_line(line) {
-            Some(value) => {
-                scores.push(value);
-            }
-            None => {}
+        if let Some(value) = proof_line(line) {
+            scores.push(value);
         }
     }
 
-    scores.sort();
+    scores.sort_unstable();
 
     scores[scores.len() / 2]
 }
