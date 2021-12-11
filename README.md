@@ -5,6 +5,6 @@ This project has solutions for the puzzles of the [Advent of Code](https://adven
 There is one subdirectory for each year. In each year folder there are Rust projects for each puzzle of the year.
 
 ### Aims
-This code was for training coding with Rust.
+This code is written to practice programming with Rust.
 There is no guarantee that the offered solution is the best one.
 I tried to use as few offered crates as possible and create all data structs on my own.
