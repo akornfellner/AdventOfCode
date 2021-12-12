@@ -44,8 +44,6 @@ fn visit(cave: &str, caves: &HashMap<&str, Vec<&str>>, visited: &[&str]) -> i32 
         return 1;
     }
 
-    let neighbors = &caves[cave];
-
     let mut result = 0;
 
     if is_small(cave) && visited.contains(&cave) {
@@ -54,7 +52,7 @@ fn visit(cave: &str, caves: &HashMap<&str, Vec<&str>>, visited: &[&str]) -> i32 
 
     visited.push(cave);
 
-    for n in neighbors {
+    for n in &caves[cave] {
         result += visit(*n, caves, &visited);
     }
 

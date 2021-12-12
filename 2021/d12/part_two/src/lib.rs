@@ -48,8 +48,6 @@ fn visit(cave: &str, caves: &HashMap<&str, Vec<&str>>, visited: &[&str], twice: 
 
     let mut twice = twice;
 
-    let neighbors = &caves[cave];
-
     let mut result = 0;
 
     if is_small(cave) && visited.contains(&cave) {
@@ -62,7 +60,7 @@ fn visit(cave: &str, caves: &HashMap<&str, Vec<&str>>, visited: &[&str], twice: 
 
     visited.push(cave);
 
-    for n in neighbors {
+    for n in &caves[cave] {
         result += visit(*n, caves, &visited, twice);
     }
 
