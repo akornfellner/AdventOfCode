@@ -37,13 +37,11 @@ pub fn solve(filename: &str) -> i32 {
 
     let twice = false;
 
-    let result = visit("start", &caves, &visited, twice);
-
-    result
+    visit("start", &caves, &visited, twice)
 }
 
-fn visit(cave: &str, caves: &HashMap<&str, Vec<&str>>, visited: &Vec<&str>, twice: bool) -> i32 {
-    let mut visited = visited.clone();
+fn visit(cave: &str, caves: &HashMap<&str, Vec<&str>>, visited: &[&str], twice: bool) -> i32 {
+    let mut visited = visited.to_owned();
     if cave == "end" {
         return 1;
     }
