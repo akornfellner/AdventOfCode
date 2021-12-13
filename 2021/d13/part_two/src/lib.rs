@@ -1,6 +1,6 @@
 use std::fs;
 
-pub fn solve(filename: &str) {
+pub fn solve(filename: &str) -> String {
     let input = fs::read_to_string(filename).unwrap();
 
     let parts: Vec<&str> = input.split("\n\n").collect();
@@ -58,10 +58,12 @@ pub fn solve(filename: &str) {
 
     let dots = tmp;
 
-    print_field(&dots);
+    print_field(&dots)
 }
 
-fn print_field(dots: &[Point]) {
+fn print_field(dots: &[Point]) -> String {
+    let mut result = String::new();
+
     let mut max_x = 0usize;
     let mut max_y = 0usize;
 
@@ -77,13 +79,15 @@ fn print_field(dots: &[Point]) {
     for y in 0..=max_y {
         for x in 0..=max_x {
             if dots.contains(&Point { x, y }) {
-                print!("*");
+                result += "*";
             } else {
-                print!(" ");
+                result += " ";
             }
         }
-        println!();
+        result += "\n";
     }
+
+    result
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -96,4 +100,17 @@ struct Point {
 struct Fold {
     axes: String,
     value: usize,
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::solve;
+
+    #[test]
+    fn it_works() {
+        assert_eq!(
+            solve("input_test.txt"),
+            "*****\n*   *\n*   *\n*   *\n*****\n"
+        );
+    }
 }

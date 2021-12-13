@@ -1,5 +1,5 @@
 use part_two::solve;
 
 fn main() {
-    solve("input.txt");
+    println!("{}", solve("input.txt"));
 }
