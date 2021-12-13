@@ -39,16 +39,12 @@ pub fn solve(filename: &str) -> usize {
     let fold = folds[0].clone();
 
     for dot in &mut dots {
-        if fold.axes == "x" {
-            if dot.x > fold.value {
-                dot.x = 2 * fold.value - dot.x;
-            }
+        if fold.axes == "x" && dot.x > fold.value {
+            dot.x = 2 * fold.value - dot.x;
         }
 
-        if fold.axes == "y" {
-            if dot.y > fold.value {
-                dot.y = 2 * fold.value - dot.y;
-            }
+        if fold.axes == "y" && dot.y > fold.value {
+            dot.y = 2 * fold.value - dot.y;
         }
     }
 
