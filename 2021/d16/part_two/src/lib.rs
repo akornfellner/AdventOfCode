@@ -18,24 +18,22 @@ fn check_packet(binary: &str) -> (usize, usize) {
     let chars: Vec<char> = binary.chars().collect();
     let mut values: Vec<usize> = vec![];
 
-    let version = to_dec(&binary[0..3]);
     let typ = to_dec(&binary[3..6]);
 
-    let mut result = version;
     let mut length;
 
     if typ == 4 {
         let mut i = 0usize;
+        let mut value = String::new();
 
         loop {
-            let value = to_dec(&binary[i + 7..i + 11]);
-            values.push(value);
+            value += &binary[i + 7..i + 11];
             if chars[i + 6] == '0' {
                 break;
             }
             i += 5;
         }
-        length = 11 + i;
+        return (11 + i, to_dec(&value));
     } else {
         let i = chars[6];
 
@@ -46,7 +44,7 @@ fn check_packet(binary: &str) -> (usize, usize) {
 
             while start < size + 22 {
                 let (l, v) = check_packet(&binary[start..]);
-                result += v;
+                values.push(v);
                 start += l;
                 length += l;
             }
@@ -57,12 +55,23 @@ fn check_packet(binary: &str) -> (usize, usize) {
 
             for _ in 0..packets {
                 let (l, v) = check_packet(&binary[start..]);
-                result += v;
+                values.push(v);
                 start += l;
                 length += l;
             }
         }
     }
+
+    let result: usize = match typ {
+        0 => values.into_iter().sum(),
+        1 => values.into_iter().product(),
+        2 => values.into_iter().min().unwrap(),
+        3 => values.into_iter().max().unwrap(),
+        5 => (values[0] > values[1]) as usize,
+        6 => (values[0] < values[1]) as usize,
+        7 => (values[0] == values[1]) as usize,
+        _ => 0,
+    };
 
     (length, result)
 }
@@ -111,22 +120,37 @@ mod tests {
     use crate::solve;
 
     #[test]
-    fn test_1() {
-        assert_eq!(solve("8A004A801A8002F478"), 16);
+    fn test_sum() {
+        assert_eq!(solve("C200B40A82"), 3);
     }
 
     #[test]
-    fn test_2() {
-        assert_eq!(solve("620080001611562C8802118E34"), 12);
+    fn test_product() {
+        assert_eq!(solve("04005AC33890"), 54);
     }
 
     #[test]
-    fn test_3() {
-        assert_eq!(solve("C0015000016115A2E0802F182340"), 23);
+    fn test_min() {
+        assert_eq!(solve("880086C3E88112"), 7);
     }
 
     #[test]
-    fn test_4() {
-        assert_eq!(solve("A0016C880162017C3686B18A3D4780"), 31);
+    fn test_max() {
+        assert_eq!(solve("CE00C43D881120"), 9);
+    }
+
+    #[test]
+    fn test_less() {
+        assert_eq!(solve("D8005AC2A8F0"), 1);
+    }
+
+    #[test]
+    fn test_equal() {
+        assert_eq!(solve("9C005AC2F8F0"), 0);
+    }
+
+    #[test]
+    fn test_combine() {
+        assert_eq!(solve("9C0141080250320F1802104A08"), 1);
     }
 }
