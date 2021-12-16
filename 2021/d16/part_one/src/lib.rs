@@ -1,7 +1,5 @@
-use std::collections::HashMap;
-
 pub fn solve(input: &str) -> usize {
-    let binary: Vec<String> = input.chars().map(|x| bin(x)).collect();
+    let binary: Vec<String> = input.chars().map(bin).collect();
 
     let mut tmp = String::new();
 
@@ -68,42 +66,30 @@ fn check_packet(binary: &str) -> (usize, usize) {
 }
 
 fn bin(hex: char) -> String {
-    let b = HashMap::from([
-        ('0', "0000".to_string()),
-        ('1', "0001".to_string()),
-        ('2', "0010".to_string()),
-        ('3', "0011".to_string()),
-        ('4', "0100".to_string()),
-        ('5', "0101".to_string()),
-        ('6', "0110".to_string()),
-        ('7', "0111".to_string()),
-        ('8', "1000".to_string()),
-        ('9', "1001".to_string()),
-        ('A', "1010".to_string()),
-        ('B', "1011".to_string()),
-        ('C', "1100".to_string()),
-        ('D', "1101".to_string()),
-        ('E', "1110".to_string()),
-        ('F', "1111".to_string()),
-    ]);
-
-    b[&hex].clone()
+    let h = match hex {
+        '0' => "0000",
+        '1' => "0001",
+        '2' => "0010",
+        '3' => "0011",
+        '4' => "0100",
+        '5' => "0101",
+        '6' => "0110",
+        '7' => "0111",
+        '8' => "1000",
+        '9' => "1001",
+        'A' => "1010",
+        'B' => "1011",
+        'C' => "1100",
+        'D' => "1101",
+        'E' => "1110",
+        'F' => "1111",
+        _ => "",
+    };
+    h.to_string()
 }
 
 fn to_dec(bin: &str) -> usize {
-    let mut mul = 1;
-    let mut bin: Vec<char> = bin.chars().collect();
-    bin.reverse();
-
-    let mut result = 0;
-
-    for b in bin {
-        let value = b as usize - 48;
-        result += value * mul;
-        mul *= 2;
-    }
-
-    result
+    usize::from_str_radix(bin, 2).unwrap()
 }
 
 #[cfg(test)]
