@@ -1,5 +1,8 @@
+use std::fs;
+
 use part_one::solve;
 
 fn main() {
-    println!("{}", solve("input_test.txt"));
+    let input = fs::read_to_string("input.txt").unwrap();
+    println!("{}", solve(&input));
 }

@@ -1,8 +1,6 @@
-use std::{collections::HashMap, fs};
+use std::collections::HashMap;
 
-pub fn solve(filename: &str) -> usize {
-    let input = fs::read_to_string(filename).unwrap();
-
+pub fn solve(input: &str) -> usize {
     let binary: Vec<String> = input.chars().map(|x| bin(x)).collect();
 
     let mut tmp = String::new();
@@ -13,17 +11,18 @@ pub fn solve(filename: &str) -> usize {
 
     let binary = tmp;
 
-    check_packet(&binary);
-
-    5
+    check_packet(&binary).1
 }
 
-fn check_packet(binary: &str) {
+fn check_packet(binary: &str) -> (usize, usize) {
     let chars: Vec<char> = binary.chars().collect();
     let mut values: Vec<usize> = vec![];
 
     let version = to_dec(&binary[0..3]);
     let typ = to_dec(&binary[3..6]);
+
+    let mut result = version;
+    let mut length;
 
     if typ == 4 {
         let mut i = 0usize;
@@ -36,22 +35,36 @@ fn check_packet(binary: &str) {
             }
             i += 5;
         }
+        return (11 + i, result);
     } else {
         let i = chars[6];
 
-        let mut packages = 0usize;
-        let mut size = 0usize;
-        let mut start = 0usize;
-
         if i == '0' {
-            size = to_dec(&binary[7..22]);
-            
-        } else{
-            packages = 
+            let size = to_dec(&binary[7..22]);
+            let mut start = 22usize;
+            length = 22;
+
+            while start < size + 22 {
+                let (l, v) = check_packet(&binary[start..]);
+                result += v;
+                start += l;
+                length += l;
+            }
+        } else {
+            let packets = to_dec(&binary[7..18]);
+            let mut start = 18usize;
+            length = 18;
+
+            for _ in 0..packets {
+                let (l, v) = check_packet(&binary[start..]);
+                result += v;
+                start += l;
+                length += l;
+            }
         }
     }
 
-    println!("{:?}", values);
+    (length, result)
 }
 
 fn bin(hex: char) -> String {
@@ -98,7 +111,22 @@ mod tests {
     use crate::solve;
 
     #[test]
-    fn it_works() {
-        assert_eq!(solve("input_test.txt"), 31);
+    fn test_1() {
+        assert_eq!(solve("8A004A801A8002F478"), 16);
+    }
+
+    #[test]
+    fn test_2() {
+        assert_eq!(solve("620080001611562C8802118E34"), 12);
+    }
+
+    #[test]
+    fn test_3() {
+        assert_eq!(solve("C0015000016115A2E0802F182340"), 23);
+    }
+
+    #[test]
+    fn test_4() {
+        assert_eq!(solve("A0016C880162017C3686B18A3D4780"), 31);
     }
 }
