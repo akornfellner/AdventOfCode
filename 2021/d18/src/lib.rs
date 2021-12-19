@@ -4,219 +4,213 @@ use std::fs;
 
 use crate::number::{Entry, Number};
 
-pub fn solve(filename: &str) -> usize {
+pub fn solve_one(filename: &str) -> usize {
     let input = fs::read_to_string(filename).unwrap();
     let lines: Vec<&str> = input.lines().collect();
 
-    let input = "[[9,8],7]";
-    let input2 = "[1,1]";
+    let mut number = Number::new(lines[0]);
 
-    let a = Number::new(input);
-    let b = Number::new(input2);
+    for line in &lines[1..] {
+        number = number + Number::new(*line);
+        number = reduce(number);
+    }
 
-    let c = Entry::Char('c').is_number();
-    println!("{}", c);
-
-    println!("{}", a + b);
-
-    5
+    number.magnitude()
 }
 
-// fn add(first: &str, second: &str) -> String {
-//     let mut result = String::from("[");
-//     result += first;
-//     result += ",";
-//     result += second;
-//     result += "]";
+pub fn solve_two(filename: &str) -> usize {
+    let input = fs::read_to_string(filename).unwrap();
+    let lines: Vec<&str> = input.lines().collect();
 
-//     println!("{}", result);
+    let mut max = 0usize;
 
-//     reduce(&result.chars().collect::<Vec<char>>())
-//         .iter()
-//         .collect::<String>()
-// }
+    for i in 0..lines.len() {
+        for j in 0..lines.len() {
+            if i != j {
+                let number = Number::new(lines[i]) + Number::new(lines[j]);
+                let number = reduce(number);
+                let mag = number.magnitude();
+                if mag > max {
+                    max = mag;
+                }
+            }
+        }
+    }
 
-// fn reduce(input: &[char]) -> Vec<char> {
-//     let mut new = input.to_owned();
-//     loop {
-//         println!("{}", new.iter().collect::<String>());
+    max
+}
 
-//         let (exploded, v) = explode(&new);
-//         new = v;
-//         let mut splitted = false;
-//         if !exploded {
-//             let (s, v) = split(&new);
-//             splitted = s;
-//             new = v;
-//         }
-//         if !exploded && !splitted {
-//             break;
-//         }
-//     }
-//     new
-// }
+fn reduce(number: Number) -> Number {
+    let mut new = number.to_owned();
+    loop {
+        let (exploded, number) = explode(new);
+        new = number;
+        let mut splitted = false;
+        if !exploded {
+            let (s, number) = split(new);
+            splitted = s;
+            new = number;
+        }
+        if !exploded && !splitted {
+            break;
+        }
+    }
+    new
+}
 
-// fn explode(input: &[char]) -> (bool, Vec<char>) {
-//     let mut last_number = 0usize;
-//     let mut start = 0usize;
-//     let mut end = 0usize;
+fn explode(number: Number) -> (bool, Number) {
+    let mut last_number = 0usize;
+    let mut start = 0usize;
+    let mut end = 0usize;
 
-//     let mut count = 0usize;
-//     let mut left = 0usize;
-//     let mut right = 0usize;
+    let mut count = 0usize;
+    let mut left = 0usize;
+    let mut right = 0usize;
+    let mut found = false;
 
-//     for i in 0..input.len() {
-//         let c = input[i];
-//         if c == '[' {
-//             count += 1;
-//         } else if c == ']' {
-//             count -= 1;
-//         } else if count > 4 && is_number(c) {
-//             let (is_pair, l, r, s, e) = explode_pair(input, i);
-//             if is_pair {
-//                 left = l;
-//                 right = r;
-//                 start = s;
-//                 end = e;
-//                 break;
-//             }
-//         } else if is_number(c) {
-//             last_number = i;
-//         }
-//     }
-//     let mut new: Vec<char> = vec![];
+    for i in 0..number.len() {
+        let e = &number.arr[i];
+        if let Entry::Open = e {
+            count += 1;
+        } else if let Entry::Close = e {
+            count -= 1;
+        } else if count > 4 && e.is_number() && number[i + 2].is_number() {
+            start = i - 1;
+            end = i + 3;
+            left = e.get_value();
+            right = number[i + 2].get_value();
+            found = true;
+            break;
+        } else if e.is_number() {
+            last_number = i;
+        }
+    }
+    let mut new: Vec<Entry> = vec![];
 
-//     if !(left == 0 && right == 0) {
-//         if last_number != 0 {
-//             for c in &input[..last_number] {
-//                 new.push(*c);
-//             }
-//             let new_left = to_number(input[last_number]) + left;
-//             for k in to_char(new_left) {
-//                 new.push(k);
-//             }
-//             for k in last_number + 1..start {
-//                 new.push(input[k]);
-//             }
-//         } else {
-//             for c in &input[..start] {
-//                 new.push(*c);
-//             }
-//         }
-//         new.push('0');
-//         let mut found_next = false;
-//         for k in &input[end + 1..] {
-//             if !found_next && is_number(*k) {
-//                 let n = to_number(*k) + right;
-//                 for j in to_char(n) {
-//                     new.push(j);
-//                 }
-//                 found_next = true;
-//             } else {
-//                 new.push(*k);
-//             }
-//         }
-//     } else {
-//         return (false, input.to_owned());
-//     }
+    if found {
+        if last_number != 0 {
+            for c in &number.arr[..last_number] {
+                new.push(c.clone());
+            }
+            let new_left = number[last_number].get_value() + left;
+            new.push(Entry::Number(new_left));
+            for k in last_number + 1..start {
+                new.push(number[k].clone());
+            }
+        } else {
+            for c in &number.arr[..start] {
+                new.push(c.clone());
+            }
+        }
+        new.push(Entry::Number(0));
+        let mut found_next = false;
+        for k in &number.arr[end + 1..] {
+            if !found_next && k.is_number() {
+                let n = k.get_value() + right;
+                new.push(Entry::Number(n));
+                found_next = true;
+            } else {
+                new.push(k.clone());
+            }
+        }
+    } else {
+        return (false, number.clone());
+    }
 
-//     (true, new)
-// }
+    (true, Number { arr: new })
+}
 
-// fn explode_pair(input: &[char], index: usize) -> (bool, usize, usize, usize, usize) {
-//     if input[index - 1] == ']' {
-//         return (false, 0, 0, 0, 0);
-//     }
+fn split(number: Number) -> (bool, Number) {
+    let mut splitted = false;
+    let mut new: Vec<Entry> = vec![];
 
-//     let mut left = String::new();
-//     let mut right = String::new();
+    let mut index = 0usize;
+    let mut value = 0usize;
 
-//     let mut end = 0usize;
+    for i in 0..number.len() {
+        let e = &number[i];
+        if e.is_number() && e.get_value() > 9 {
+            index = i;
+            splitted = true;
+            value = e.get_value();
+            break;
+        }
+    }
 
-//     let mut infirst = true;
+    if splitted {
+        for e in &number.arr[..index] {
+            new.push(e.clone())
+        }
+        let (left, right);
+        left = value / 2;
+        if value % 2 == 0 {
+            right = value / 2;
+        } else {
+            right = value / 2 + 1;
+        }
+        new.push(Entry::Open);
+        new.push(Entry::Number(left));
+        new.push(Entry::Comma);
+        new.push(Entry::Number(right));
+        new.push(Entry::Close);
+        for e in &number.arr[index + 1..] {
+            new.push(e.clone());
+        }
 
-//     for i in index..input.len() {
-//         let c = input[i];
-//         if is_number(c) && infirst {
-//             left += &c.to_string();
-//         } else if c == ',' && infirst {
-//             infirst = false;
-//         } else if is_number(c) && !infirst {
-//             right += &c.to_string();
-//         } else if c == '[' {
-//             return (false, 0, 0, 0, 0);
-//         } else if c == ']' {
-//             if infirst {
-//                 return (false, 0, 0, 0, 0);
-//             } else {
-//                 end = i;
-//                 break;
-//             }
-//         }
-//     }
-//     (
-//         true,
-//         left.parse::<usize>().unwrap(),
-//         right.parse::<usize>().unwrap(),
-//         index - 1,
-//         end,
-//     )
-// }
+        return (true, Number { arr: new });
+    }
 
-// fn split(input: &[char]) -> (bool, Vec<char>) {
-//     let mut start = 0usize;
-//     let mut end = 0usize;
-//     let mut left = 0usize;
-//     let mut right = 0usize;
-
-//     for i in 0..input.len() {
-//         if is_number(input[i]) && is_number(input[i + 1]) {
-//             let mut number = input[i].to_string();
-//             number += &input[i + 1].to_string();
-//             let number = number.parse::<usize>().unwrap();
-//             if number % 2 == 0 {
-//                 left = number / 2;
-//                 right = number / 2;
-//             } else {
-//                 left = number / 2;
-//                 right = number / 2 + 1;
-//             }
-//             start = i;
-//             end = i + 1;
-//             break;
-//         }
-//     }
-
-//     let mut new: Vec<char> = vec![];
-
-//     if !(start == 0 && end == 0) {
-//         for c in &input[..start] {
-//             new.push(*c);
-//         }
-//         new.push('[');
-//         for c in to_char(left) {
-//             new.push(c);
-//         }
-//         new.push(',');
-//         for c in to_char(right) {
-//             new.push(c);
-//         }
-//         new.push(']');
-//         for c in &input[end + 1..] {
-//             new.push(*c);
-//         }
-//         return (true, new);
-//     }
-
-//     (false, input.to_owned())
-// }
+    (false, number.clone())
+}
 
 #[cfg(test)]
 mod tests {
-    use crate::solve;
+    use crate::number::Number;
+    use crate::{solve_one, solve_two};
 
     #[test]
-    fn it_works() {
-        assert_eq!(solve("input_test.txt"), 4140);
+    fn one_works() {
+        assert_eq!(solve_one("input_test.txt"), 4140);
+    }
+
+    #[test]
+    fn two_works() {
+        assert_eq!(solve_two("input_test.txt"), 3993);
+    }
+
+    #[test]
+    fn mag_1() {
+        let number = Number::new("[[1,2],[[3,4],5]]");
+        assert_eq!(number.magnitude(), 143);
+    }
+
+    #[test]
+    fn mag_2() {
+        let number = Number::new("[[[[0,7],4],[[7,8],[6,0]]],[8,1]]");
+        assert_eq!(number.magnitude(), 1384);
+    }
+
+    #[test]
+    fn mag_3() {
+        let number = Number::new("[[[[1,1],[2,2]],[3,3]],[4,4]]");
+        assert_eq!(number.magnitude(), 445);
+    }
+
+    #[test]
+    fn mag_4() {
+        let number = Number::new("[[[[3,0],[5,3]],[4,4]],[5,5]]");
+        assert_eq!(number.magnitude(), 791);
+    }
+
+    #[test]
+    fn mag_5() {
+        let number = Number::new("[[[[5,0],[7,4]],[5,5]],[6,6]]");
+        assert_eq!(number.magnitude(), 1137);
+    }
+
+    #[test]
+    fn mag_6() {
+        let number = Number::new("[[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]]");
+        assert_eq!(number.magnitude(), 3488);
     }
 }

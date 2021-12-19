@@ -1,8 +1,11 @@
-use std::{fmt, ops::Add};
+use std::{
+    fmt,
+    ops::{Add, Index},
+};
 
 #[derive(Debug, Clone)]
 pub struct Number {
-    arr: Vec<Entry>,
+    pub arr: Vec<Entry>,
 }
 
 impl Number {
@@ -18,13 +21,78 @@ impl Number {
                     curr_number.clear();
                 }
                 active_number = false;
-                arr.push(Entry::Char(c));
+                let p = match c {
+                    '[' => Entry::Open,
+                    ']' => Entry::Close,
+                    ',' => Entry::Comma,
+                    _ => Entry::Comma,
+                };
+                arr.push(p);
             } else {
                 active_number = true;
                 curr_number += &c.to_string();
             }
         }
         Number { arr }
+    }
+
+    pub fn get_parts(&self) -> (Self, Self) {
+        let mut index = 0usize;
+        let mut count = 0usize;
+        for i in 1..self.len() {
+            let e = self[i].clone();
+            if let Entry::Open = e {
+                count += 1;
+            } else if let Entry::Close = e {
+                count -= 1;
+            } else if let Entry::Comma = e {
+                if count == 0 {
+                    index = i;
+                    break;
+                }
+            }
+        }
+
+        let left_number = Number {
+            arr: self.arr[1..index].to_owned(),
+        };
+
+        let right_number = Number {
+            arr: self.arr[index + 1..self.arr.len() - 1].to_owned(),
+        };
+
+        (left_number, right_number)
+    }
+
+    pub fn is_number(&self) -> bool {
+        if self.len() > 1 {
+            return false;
+        }
+        true
+    }
+
+    pub fn len(&self) -> usize {
+        self.arr.len()
+    }
+
+    pub fn magnitude(&self) -> usize {
+        let (left, right) = self.get_parts();
+
+        let (l, r);
+
+        if left.is_number() {
+            l = left.arr[0].get_value();
+        } else {
+            l = left.magnitude();
+        }
+
+        if right.is_number() {
+            r = right.arr[0].get_value();
+        } else {
+            r = right.magnitude();
+        }
+
+        3 * l + 2 * r
     }
 }
 
@@ -34,7 +102,9 @@ impl fmt::Display for Number {
 
         for c in &self.arr {
             let s = match c {
-                Entry::Char(value) => value.to_string(),
+                Entry::Open => "[".to_string(),
+                Entry::Comma => ",".to_string(),
+                Entry::Close => "]".to_string(),
                 Entry::Number(value) => value.to_string(),
             };
             output += &s;
@@ -49,24 +119,33 @@ impl Add for Number {
 
     fn add(self, other: Self) -> Self {
         let mut arr: Vec<Entry> = vec![];
-        arr.push(Entry::Char('['));
+        arr.push(Entry::Open);
         for e in self.arr {
             arr.push(e);
         }
-        arr.push(Entry::Char(','));
+        arr.push(Entry::Comma);
         for e in other.arr {
             arr.push(e);
         }
-        arr.push(Entry::Char(']'));
+        arr.push(Entry::Close);
 
         Number { arr }
+    }
+}
+
+impl Index<usize> for Number {
+    type Output = Entry;
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.arr[index]
     }
 }
 
 #[derive(Debug, Clone)]
 pub enum Entry {
     Number(usize),
-    Char(char),
+    Open,
+    Close,
+    Comma,
 }
 
 impl Entry {
@@ -75,6 +154,13 @@ impl Entry {
             return true;
         }
         false
+    }
+
+    pub fn get_value(&self) -> usize {
+        if let Entry::Number(value) = self {
+            return *value;
+        }
+        return 0;
     }
 }
 
