@@ -64,14 +64,14 @@ impl Number {
         (left_number, right_number)
     }
 
-    pub fn is_number(&self) -> bool {
+    fn is_number(&self) -> bool {
         if self.len() > 1 {
             return false;
         }
         true
     }
 
-    pub fn len(&self) -> usize {
+    fn len(&self) -> usize {
         self.arr.len()
     }
 
@@ -93,6 +93,129 @@ impl Number {
         }
 
         3 * l + 2 * r
+    }
+
+    pub fn reduce(number: Self) -> Self {
+        let mut new = number;
+        loop {
+            let (exploded, number) = Self::explode(new);
+            new = number;
+            let mut splitted = false;
+            if !exploded {
+                let (s, number) = Self::split(new);
+                splitted = s;
+                new = number;
+            }
+            if !exploded && !splitted {
+                break;
+            }
+        }
+        new
+    }
+
+    fn explode(number: Number) -> (bool, Number) {
+        let mut last_number = 0usize;
+        let mut start = 0usize;
+        let mut end = 0usize;
+
+        let mut count = 0usize;
+        let mut left = 0usize;
+        let mut right = 0usize;
+        let mut found = false;
+
+        for i in 0..number.len() {
+            let e = &number.arr[i];
+            if let Entry::Open = e {
+                count += 1;
+            } else if let Entry::Close = e {
+                count -= 1;
+            } else if count > 4 && e.is_number() && number[i + 2].is_number() {
+                start = i - 1;
+                end = i + 3;
+                left = e.get_value();
+                right = number[i + 2].get_value();
+                found = true;
+                break;
+            } else if e.is_number() {
+                last_number = i;
+            }
+        }
+        let mut new: Vec<Entry> = vec![];
+
+        if found {
+            if last_number != 0 {
+                for c in &number.arr[..last_number] {
+                    new.push(c.clone());
+                }
+                let new_left = number[last_number].get_value() + left;
+                new.push(Entry::Number(new_left));
+                for k in last_number + 1..start {
+                    new.push(number[k].clone());
+                }
+            } else {
+                for c in &number.arr[..start] {
+                    new.push(c.clone());
+                }
+            }
+            new.push(Entry::Number(0));
+            let mut found_next = false;
+            for k in &number.arr[end + 1..] {
+                if !found_next && k.is_number() {
+                    let n = k.get_value() + right;
+                    new.push(Entry::Number(n));
+                    found_next = true;
+                } else {
+                    new.push(k.clone());
+                }
+            }
+        } else {
+            return (false, number);
+        }
+
+        (true, Number { arr: new })
+    }
+
+    fn split(number: Number) -> (bool, Number) {
+        let mut splitted = false;
+        let mut new: Vec<Entry> = vec![];
+
+        let mut index = 0usize;
+        let mut value = 0usize;
+
+        for i in 0..number.len() {
+            let e = &number[i];
+            if e.is_number() && e.get_value() > 9 {
+                index = i;
+                splitted = true;
+                value = e.get_value();
+                break;
+            }
+        }
+
+        if splitted {
+            for e in &number.arr[..index] {
+                new.push(e.clone())
+            }
+            let (left, right);
+            left = value / 2;
+            if value % 2 == 0 {
+                right = value / 2;
+            } else {
+                right = value / 2 + 1;
+            }
+            new.push(Entry::Open);
+            new.push(Entry::Number(left));
+            new.push(Entry::Comma);
+            new.push(Entry::Number(right));
+            new.push(Entry::Close);
+            for e in &number.arr[index + 1..] {
+                new.push(e.clone());
+            }
+
+            return (true, Number { arr: new });
+        }
+
+        (false, number)
     }
 }
 
@@ -118,8 +241,7 @@ impl Add for Number {
     type Output = Self;
 
     fn add(self, other: Self) -> Self {
-        let mut arr: Vec<Entry> = vec![];
-        arr.push(Entry::Open);
+        let mut arr: Vec<Entry> = vec![Entry::Open];
         for e in self.arr {
             arr.push(e);
         }
@@ -149,7 +271,7 @@ pub enum Entry {
 }
 
 impl Entry {
-    pub fn is_number(&self) -> bool {
+    fn is_number(&self) -> bool {
         if let Entry::Number(_) = self {
             return true;
         }
@@ -160,7 +282,7 @@ impl Entry {
         if let Entry::Number(value) = self {
             return *value;
         }
-        return 0;
+        0
     }
 }
 
