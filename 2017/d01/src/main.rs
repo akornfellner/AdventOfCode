@@ -1,8 +1,8 @@
 use std::fs;
 
 fn main() {
-    println!("Part 1: {}", solve(false));
-    println!("Part 2: {}", solve(true));
+    println!("Part One: {}", solve(false));
+    println!("Part Two: {}", solve(true));
 }
 
 fn solve(two: bool) -> u32 {
