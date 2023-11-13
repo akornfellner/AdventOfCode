@@ -6,17 +6,7 @@ fn main() {
 }
 
 fn solve(input: &str) -> usize {
-    let input: String = fs::read_to_string(input).unwrap();
-    let mut numbers: Vec<Vec<usize>> = vec![];
-
-    for line in input.lines() {
-        let mut line_numbers: Vec<usize> = vec![];
-        for number in line.split('\t') {
-            line_numbers.push(number.parse::<usize>().unwrap());
-        }
-        numbers.push(line_numbers);
-    }
-
+    let numbers = read_input(input);
     let mut sum = 0;
 
     for line in numbers {
@@ -39,17 +29,7 @@ fn solve(input: &str) -> usize {
 }
 
 fn solve_two(input: &str) -> usize {
-    let input: String = fs::read_to_string(input).unwrap();
-    let mut numbers: Vec<Vec<usize>> = vec![];
-
-    for line in input.lines() {
-        let mut line_numbers: Vec<usize> = vec![];
-        for number in line.split('\t') {
-            line_numbers.push(number.parse::<usize>().unwrap());
-        }
-        numbers.push(line_numbers);
-    }
-
+    let numbers = read_input(input);
     let mut sum = 0;
 
     for line in numbers {
@@ -63,4 +43,19 @@ fn solve_two(input: &str) -> usize {
     }
 
     sum
+}
+
+fn read_input(input: &str) -> Vec<Vec<usize>> {
+    let input: String = fs::read_to_string(input).unwrap();
+    let mut numbers: Vec<Vec<usize>> = vec![];
+
+    for line in input.lines() {
+        let mut line_numbers: Vec<usize> = vec![];
+        for number in line.split('\t') {
+            line_numbers.push(number.parse::<usize>().unwrap());
+        }
+        numbers.push(line_numbers);
+    }
+
+    numbers
 }
