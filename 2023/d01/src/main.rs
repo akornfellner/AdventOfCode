@@ -1,77 +1,49 @@
-use std::{collections::HashMap, fs};
+use std::fs;
 
 fn main() {
-    println!("Part one: {}", solve_one("input.in"));
-    println!("Part two: {}", solve_two("input.in"));
+    let (p1, p2) = solve("input.in");
+    println!("Part 1: {}", p1);
+    println!("Part 2: {}", p2);
 }
 
-fn solve_one(input: &str) -> i32 {
+fn solve(input: &str) -> (i32, i32) {
     let input = fs::read_to_string(input).unwrap();
     let lines: Vec<&str> = input.lines().collect();
 
-    let mut sum = 0;
+    let names = [
+        "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+    ];
+
+    let mut p1 = 0;
+    let mut p2 = 0;
 
     for line in lines {
-        let mut digits: Vec<char> = vec![];
-        for c in line.chars() {
-            if c.is_ascii_digit() {
-                digits.push(c);
-            }
-        }
-        let first = String::from(digits[0]);
-        digits.reverse();
-        let second = String::from(digits[0]);
-        let number = first + &second;
-        sum += number.parse::<i32>().unwrap();
-    }
-
-    sum
-}
-
-fn solve_two(input: &str) -> i32 {
-    let input = fs::read_to_string(input).unwrap();
-    let lines: Vec<&str> = input.lines().collect();
-
-    let digits: HashMap<&str, char> = [
-        ("zero", '0'),
-        ("one", '1'),
-        ("two", '2'),
-        ("three", '3'),
-        ("four", '4'),
-        ("five", '5'),
-        ("six", '6'),
-        ("seven", '7'),
-        ("eight", '8'),
-        ("nine", '9'),
-    ]
-    .iter()
-    .cloned()
-    .collect();
-
-    let mut sum = 0;
-
-    for line in lines {
-        let mut number: Vec<char> = vec![];
+        let mut p1_digits: Vec<i32> = vec![];
+        let mut p2_digits: Vec<i32> = vec![];
         let chars: Vec<char> = line.chars().collect();
 
-        for i in 0..line.len() {
-            if chars[i].is_ascii_digit() {
-                number.push(chars[i]);
-            }
-            for j in i + 1..line.len() {
-                let word = &line[i..=j];
-                if digits.contains_key(word) {
-                    number.push(*digits.get(word).unwrap());
+        for (i, c) in line.chars().enumerate() {
+            if c.is_ascii_digit() {
+                p1_digits.push(c as i32 - '0' as i32);
+                p2_digits.push(c as i32 - '0' as i32);
+            } else {
+                for (n, name) in names.iter().enumerate() {
+                    if chars[i..].starts_with(&name.chars().collect::<Vec<char>>()) {
+                        p2_digits.push(n as i32 + 1);
+                    }
                 }
             }
         }
-
-        let first = String::from(number[0]);
-        number.reverse();
-        let second = String::from(number[0]);
-        let number = first + &second;
-        sum += number.parse::<i32>().unwrap();
+        p1 += get_number(&mut p1_digits);
+        p2 += get_number(&mut p2_digits);
     }
 
-    sum
+    (p1, p2)
+}
+
+fn get_number(digits: &mut [i32]) -> i32 {
+    let first = digits[0];
+    digits.reverse();
+    let second = digits[0];
+    first * 10 + second
 }
