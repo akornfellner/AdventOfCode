@@ -1,13 +1,7 @@
 use std::fs;
 
 fn main() {
-    let (p1, p2) = solve("input.in");
-    println!("Part 1: {}", p1);
-    println!("Part 2: {}", p2);
-}
-
-fn solve(input: &str) -> (i32, i32) {
-    let input = fs::read_to_string(input).unwrap();
+    let input = fs::read_to_string("input.in").unwrap();
     let lines: Vec<&str> = input.lines().collect();
 
     let names = [
@@ -34,16 +28,10 @@ fn solve(input: &str) -> (i32, i32) {
                 }
             }
         }
-        p1 += get_number(&mut p1_digits);
-        p2 += get_number(&mut p2_digits);
+        p1 += p1_digits[0] * 10 + p1_digits[p1_digits.len() - 1];
+        p2 += p2_digits[0] * 10 + p2_digits[p2_digits.len() - 1];
     }
 
-    (p1, p2)
-}
-
-fn get_number(digits: &mut [i32]) -> i32 {
-    let first = digits[0];
-    digits.reverse();
-    let second = digits[0];
-    first * 10 + second
+    println!("Part 1: {}", p1);
+    println!("Part 2: {}", p2);
 }
