@@ -66,7 +66,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_solve() {
-        assert_eq!(solve("input_test.in"), (5, 4));
+    fn test_count() {
+        assert_eq!(solve("input_test.in").0, 5);
+    }
+
+    #[test]
+    fn test_cycle() {
+        assert_eq!(solve("input_test.in").1, 4);
     }
 }
