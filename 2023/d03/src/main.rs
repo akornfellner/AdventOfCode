@@ -4,7 +4,13 @@ use std::{
 };
 
 fn main() {
-    let input = fs::read_to_string("input.in").unwrap();
+    let (p1, p2) = solve("input.in");
+    println!("Part one: {}", p1);
+    println!("Part two: {}", p2);
+}
+
+fn solve(input: &str) -> (i32, i32) {
+    let input = fs::read_to_string(input).unwrap();
     let field: Vec<Vec<char>> = input
         .lines()
         .map(|line| line.chars().collect::<Vec<char>>())
@@ -28,7 +34,6 @@ fn main() {
                             gears.insert((i, j));
                         }
                         found_symbol = true;
-                        break;
                     }
                 }
             } else {
@@ -57,8 +62,7 @@ fn main() {
         }
     }
 
-    println!("Part one: {}", p1);
-    println!("Part two: {}", p2);
+    (p1, p2)
 }
 
 fn get_neighbors(x: usize, y: usize, arr: &[Vec<char>]) -> Vec<(usize, usize)> {
@@ -95,5 +99,20 @@ fn add_gears(n: i32, gears: &HashSet<(usize, usize)>, map: &mut HashMap<(usize, 
     for gear in gears {
         let numbers = map.entry(*gear).or_default();
         numbers.push(n);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_one() {
+        assert_eq!(solve("input_test.in").0, 4361);
+    }
+
+    #[test]
+    fn test_two() {
+        assert_eq!(solve("input_test.in").1, 467835);
     }
 }
