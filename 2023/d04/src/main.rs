@@ -1,8 +1,10 @@
-use rustkorn::*;
-use std::fs;
+use std::{
+    collections::{HashMap, HashSet},
+    fs,
+};
 
 fn main() {
-    let (p1, p2) = solve!();
+    let (p1, p2) = solve("input.in");
     println!("Part one: {}", p1);
     println!("Part two: {}", p2);
 }
@@ -16,13 +18,13 @@ fn solve(filename: &str) -> (u32, u32) {
 
     for line in lines {
         let parts = line.split(" | ").collect::<Vec<&str>>();
-        let mut winning_set = hashset!(i32);
+        let mut winning_set = HashSet::new();
 
         for number in parts[0].split_whitespace().skip(2) {
             winning_set.insert(number.parse::<i32>().unwrap());
         }
 
-        let mut own_set = hashset!(i32);
+        let mut own_set = HashSet::new();
 
         for number in parts[1].split_whitespace() {
             own_set.insert(number.parse::<i32>().unwrap());
@@ -35,7 +37,7 @@ fn solve(filename: &str) -> (u32, u32) {
     let mut p1 = 0;
     let mut p2: u32 = 0;
 
-    let mut duplicates = hashmap!(usize, u32);
+    let mut duplicates = HashMap::new();
 
     for i in 0..winning.len() {
         let matches = winning[i].intersection(&own[i]).count() as u32;
