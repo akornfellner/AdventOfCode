@@ -1,10 +1,8 @@
-use std::{
-    collections::{HashMap, HashSet},
-    fs,
-};
+use rustkorn::*;
+use std::fs;
 
 fn main() {
-    let (p1, p2) = solve("input.in");
+    let (p1, p2) = solve!();
     println!("Part one: {}", p1);
     println!("Part two: {}", p2);
 }
@@ -13,18 +11,18 @@ fn solve(filename: &str) -> (u32, u32) {
     let input = fs::read_to_string(filename).unwrap();
     let lines: Vec<&str> = input.lines().collect();
 
-    let mut winning: Vec<HashSet<i32>> = vec![];
-    let mut own: Vec<HashSet<i32>> = vec![];
+    let mut winning: Vec<Set> = vec![];
+    let mut own: Vec<Set> = vec![];
 
     for line in lines {
         let parts = line.split(" | ").collect::<Vec<&str>>();
-        let mut winning_set: HashSet<i32> = HashSet::new();
+        let mut winning_set = hashset!(i32);
 
         for number in parts[0].split_whitespace().skip(2) {
             winning_set.insert(number.parse::<i32>().unwrap());
         }
 
-        let mut own_set: HashSet<i32> = HashSet::new();
+        let mut own_set = hashset!(i32);
 
         for number in parts[1].split_whitespace() {
             own_set.insert(number.parse::<i32>().unwrap());
@@ -37,7 +35,7 @@ fn solve(filename: &str) -> (u32, u32) {
     let mut p1 = 0;
     let mut p2: u32 = 0;
 
-    let mut duplicates: HashMap<usize, u32> = HashMap::new();
+    let mut duplicates = hashmap!(usize, u32);
 
     for i in 0..winning.len() {
         let matches = winning[i].intersection(&own[i]).count() as u32;
@@ -59,6 +57,8 @@ fn solve(filename: &str) -> (u32, u32) {
 
     (p1, p2)
 }
+
+type Set = std::collections::HashSet<i32>;
 
 #[cfg(test)]
 mod tests {
