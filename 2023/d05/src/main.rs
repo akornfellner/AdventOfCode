@@ -34,17 +34,17 @@ fn solve(filename: &str) -> (usize, usize) {
         }
     }
 
+    let mut ranges: Vec<(usize, usize)> = vec![];
+
     for i in (0..seeds.len()).step_by(2) {
-        for s in seeds[i]..seeds[i] + seeds[i + 1] {
-            let mut x = s;
-            for transformation in &transformations {
-                x = transformation.transform(x);
-            }
-            if x < result.1 {
-                result.1 = x;
-            }
-        }
+        ranges.push((seeds[i], seeds[i] + seeds[i + 1]));
     }
+
+    for transformation in &transformations {
+        ranges = transformation.transfrom_range(&ranges);
+    }
+
+    result.1 = ranges.iter().map(|r| r.0).min().unwrap();
 
     result
 }
@@ -93,6 +93,46 @@ impl Transformation {
             }
         }
         x
+    }
+
+    fn transfrom_range(&self, ranges: &[(usize, usize)]) -> Vec<(usize, usize)> {
+        let mut ranges: Vec<(usize, usize)> = ranges.to_vec();
+        let mut result: Vec<(usize, usize)> = vec![];
+
+        for map in &self.mappings {
+            let mut ranges_new: Vec<(usize, usize)> = vec![];
+
+            for range in &ranges {
+                let s = range.0;
+                let e = range.1;
+                let ms = map.start;
+                let me = map.end;
+                let d = map.diff;
+
+                let before = (s, e.min(ms));
+                let inter = (s.max(ms), e.min(me));
+                let after = (s.max(me), e);
+
+                if before.1 > before.0 {
+                    ranges_new.push(before);
+                }
+                if inter.1 > inter.0 {
+                    let new_start = (inter.0 as i64 + d) as usize;
+                    let new_end = (inter.1 as i64 + d) as usize;
+                    result.push((new_start, new_end));
+                }
+                if after.1 > after.0 {
+                    ranges_new.push(after);
+                }
+            }
+            ranges = ranges_new;
+        }
+
+        for range in ranges {
+            result.push(range);
+        }
+
+        result
     }
 }
 
