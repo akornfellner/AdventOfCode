@@ -41,7 +41,7 @@ fn solve(filename: &str) -> (usize, usize) {
     }
 
     for transformation in &transformations {
-        ranges = transformation.transfrom_range(&ranges);
+        ranges = transformation.transform_range(&ranges);
     }
 
     result.1 = ranges.iter().map(|r| r.0).min().unwrap();
@@ -50,13 +50,13 @@ fn solve(filename: &str) -> (usize, usize) {
 }
 
 #[derive(Debug)]
-struct Mapping {
+struct Map {
     start: usize,
     end: usize,
     diff: i64,
 }
 
-impl Mapping {
+impl Map {
     fn new(line: &str) -> Self {
         let parts = line
             .split_whitespace()
@@ -72,53 +72,47 @@ impl Mapping {
 
 #[derive(Debug)]
 struct Transformation {
-    mappings: Vec<Mapping>,
+    maps: Vec<Map>,
 }
 
 impl Transformation {
     fn new(input: &str) -> Self {
-        let mut mappings = vec![];
+        let mut maps = vec![];
         for line in input.lines().skip(1) {
-            mappings.push(Mapping::new(line));
+            maps.push(Map::new(line));
         }
-        Self { mappings }
+        Self { maps }
     }
 
     fn transform(&self, x: usize) -> usize {
         let mut x = x;
-        for map in &self.mappings {
-            if x >= map.start && x < map.end {
-                x = (x as i64 + map.diff) as usize;
+        for maps in &self.maps {
+            if x >= maps.start && x < maps.end {
+                x = (x as i64 + maps.diff) as usize;
                 break;
             }
         }
         x
     }
 
-    fn transfrom_range(&self, ranges: &[(usize, usize)]) -> Vec<(usize, usize)> {
+    fn transform_range(&self, ranges: &[(usize, usize)]) -> Vec<(usize, usize)> {
         let mut ranges: Vec<(usize, usize)> = ranges.to_vec();
         let mut result: Vec<(usize, usize)> = vec![];
 
-        for map in &self.mappings {
+        for maps in &self.maps {
             let mut ranges_new: Vec<(usize, usize)> = vec![];
 
             for range in &ranges {
-                let s = range.0;
-                let e = range.1;
-                let ms = map.start;
-                let me = map.end;
-                let d = map.diff;
-
-                let before = (s, e.min(ms));
-                let inter = (s.max(ms), e.min(me));
-                let after = (s.max(me), e);
+                let before = (range.0, range.1.min(maps.start));
+                let inter = (range.0.max(maps.start), range.1.min(maps.end));
+                let after = (range.0.max(maps.end), range.1);
 
                 if before.1 > before.0 {
                     ranges_new.push(before);
                 }
                 if inter.1 > inter.0 {
-                    let new_start = (inter.0 as i64 + d) as usize;
-                    let new_end = (inter.1 as i64 + d) as usize;
+                    let new_start = (inter.0 as i64 + maps.diff) as usize;
+                    let new_end = (inter.1 as i64 + maps.diff) as usize;
                     result.push((new_start, new_end));
                 }
                 if after.1 > after.0 {
