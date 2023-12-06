@@ -1,4 +1,4 @@
-use std::fs;
+use std::{cmp::Ordering, fs};
 
 fn main() {
     let (p1, p2) = solve("input.in");
@@ -26,48 +26,53 @@ fn solve(filename: &str) -> (i64, i64) {
         .map(|x| x.parse::<i64>().unwrap())
         .collect();
 
-    let mut time2 = String::new();
-    for time in &times {
-        time2.push_str(&time.to_string());
-    }
-    let time2 = time2.parse::<i64>().unwrap();
-
-    let mut dist2 = String::new();
-    for dist in &dists {
-        dist2.push_str(&dist.to_string());
-    }
-    let dist2 = dist2.parse::<i64>().unwrap();
+    let time2 = combine_numbers(&times);
+    let dist2 = combine_numbers(&dists);
 
     let mut result = (1, 1);
 
     for i in 0..times.len() {
-        let time = times[i];
-        let dist = dists[i];
-
-        let mut count = 0;
-
-        for v in 0..=time {
-            let s = (time - v) * v;
-            if s > dist {
-                count += 1;
-            }
-        }
-
-        result.0 *= count;
+        result.0 *= count(times[i], dists[i]);
     }
 
-    let mut count = 0;
+    result.1 = count(time2, dist2);
 
-    for v in 0..=time2 {
-        let s = (time2 - v) * v;
-        if s > dist2 {
+    result
+}
+
+fn count(time: i64, dist: i64) -> i64 {
+    let mut count = 0;
+    let mut add = 0;
+
+    for v in 0..=time {
+        add = 0;
+
+        match (time - 2 * v).cmp(&0) {
+            Ordering::Less => {
+                add = count;
+                break;
+            }
+            Ordering::Equal => {
+                add = count + 1;
+                break;
+            }
+            Ordering::Greater => (),
+        }
+
+        if (time - v) * v > dist {
             count += 1;
         }
     }
 
-    result.1 *= count;
+    count + add
+}
 
-    result
+fn combine_numbers(numbers: &[i64]) -> i64 {
+    let mut result = String::new();
+    for number in numbers {
+        result.push_str(&number.to_string());
+    }
+    result.parse::<i64>().unwrap()
 }
 
 #[cfg(test)]
