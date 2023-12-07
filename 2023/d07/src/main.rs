@@ -33,7 +33,7 @@ fn solve(filename: &str) -> (i32, i32) {
 struct Hand {
     cards: Vec<i32>,
     bid: i32,
-    typ: Type,
+    typ: i32,
 }
 
 impl Hand {
@@ -49,17 +49,15 @@ impl Hand {
         Hand { cards, bid, typ }
     }
 
-    fn get_type(cards: &[i32]) -> Type {
-        let cards = cards.to_vec();
+    fn get_type(cards: &[i32]) -> i32 {
         let mut counts = [0; 13];
-        let mut typ = Type::HighCard;
         let mut j = 0;
 
         for card in cards {
-            if card < 0 {
+            if *card < 0 {
                 j += 1;
             } else {
-                counts[card as usize] += 1;
+                counts[*card as usize] += 1;
             }
         }
 
@@ -68,21 +66,7 @@ impl Hand {
 
         counts[0] += j;
 
-        if counts[0] == 5 {
-            typ = Type::Five;
-        } else if counts[0] == 4 {
-            typ = Type::Four;
-        } else if counts[0] == 3 && counts[1] == 2 {
-            typ = Type::FullHouse;
-        } else if counts[0] == 3 {
-            typ = Type::Three;
-        } else if counts[0] == 2 && counts[1] == 2 {
-            typ = Type::TwoPairs;
-        } else if counts[0] == 2 {
-            typ = Type::Pair;
-        }
-
-        typ
+        counts[0] * 10 + counts[1]
     }
 
     fn get_card(c: char, two: bool) -> i32 {
@@ -119,31 +103,6 @@ impl Ord for Hand {
 }
 
 impl PartialOrd for Hand {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-enum Type {
-    HighCard,
-    Pair,
-    TwoPairs,
-    Three,
-    FullHouse,
-    Four,
-    Five,
-}
-
-impl Ord for Type {
-    fn cmp(&self, other: &Self) -> Ordering {
-        let a = *self as i32;
-        let b = *other as i32;
-        a.cmp(&b)
-    }
-}
-
-impl PartialOrd for Type {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
