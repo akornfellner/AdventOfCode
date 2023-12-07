@@ -44,12 +44,12 @@ impl Hand {
             .chars()
             .map(|c| Hand::get_card(c, two))
             .collect::<Vec<i32>>();
-        let typ = Hand::get_type(&cards, two);
+        let typ = Hand::get_type(&cards);
 
         Hand { cards, bid, typ }
     }
 
-    fn get_type(cards: &[i32], two: bool) -> Type {
+    fn get_type(cards: &[i32]) -> Type {
         let cards = cards.to_vec();
         let mut counts = [0; 13];
         let mut typ = Type::HighCard;
@@ -80,19 +80,17 @@ impl Hand {
             typ = Type::Pair;
         }
 
-        if two {
-            for _ in 0..j {
-                let typ_new = match typ {
-                    Type::Five => Type::Five,
-                    Type::Four => Type::Five,
-                    Type::FullHouse => Type::Four,
-                    Type::Three => Type::Four,
-                    Type::TwoPairs => Type::FullHouse,
-                    Type::Pair => Type::Three,
-                    Type::HighCard => Type::Pair,
-                };
-                typ = typ_new;
-            }
+        for _ in 0..j {
+            let typ_new = match typ {
+                Type::Five => Type::Five,
+                Type::Four => Type::Five,
+                Type::FullHouse => Type::Four,
+                Type::Three => Type::Four,
+                Type::TwoPairs => Type::FullHouse,
+                Type::Pair => Type::Three,
+                Type::HighCard => Type::Pair,
+            };
+            typ = typ_new;
         }
 
         typ
