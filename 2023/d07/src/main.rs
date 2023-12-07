@@ -66,6 +66,8 @@ impl Hand {
         counts.sort();
         counts.reverse();
 
+        counts[0] += j;
+
         if counts[0] == 5 {
             typ = Type::Five;
         } else if counts[0] == 4 {
@@ -78,19 +80,6 @@ impl Hand {
             typ = Type::TwoPairs;
         } else if counts[0] == 2 {
             typ = Type::Pair;
-        }
-
-        for _ in 0..j {
-            let typ_new = match typ {
-                Type::Five => Type::Five,
-                Type::Four => Type::Five,
-                Type::FullHouse => Type::Four,
-                Type::Three => Type::Four,
-                Type::TwoPairs => Type::FullHouse,
-                Type::Pair => Type::Three,
-                Type::HighCard => Type::Pair,
-            };
-            typ = typ_new;
         }
 
         typ
