@@ -68,7 +68,7 @@ impl Hand {
 
         counts[0] += j;
 
-        counts[0] * 10 + counts[1]
+        counts[0] * 2 + counts[1]
     }
 
     fn get_card(c: char, two: bool) -> i32 {
