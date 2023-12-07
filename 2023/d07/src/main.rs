@@ -23,7 +23,9 @@ fn solve(filename: &str) -> (i32, i32) {
 
     for (i, hand) in hands1.iter().enumerate() {
         result.0 += hand.bid * (i as i32 + 1);
-        result.1 += hands2[i].bid * (i as i32 + 1);
+    }
+    for (i, hand) in hands2.iter().enumerate() {
+        result.1 += hand.bid * (i as i32 + 1);
     }
 
     result
