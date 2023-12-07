@@ -41,30 +41,28 @@ fn solve(filename: &str) -> (i64, i64) {
 }
 
 fn count(time: i64, dist: i64) -> i64 {
-    let mut count = 0;
-    let mut add = 0;
+    let t = time as f64;
+    let d = dist as f64;
 
-    for v in 0..=time {
-        add = 0;
+    let a = (t - (t.powi(2) - 4.0 * d).sqrt()) / 2.0;
+    let b = (t + (t.powi(2) - 4.0 * d).sqrt()) / 2.0;
 
-        match (time - 2 * v).cmp(&0) {
-            Ordering::Less => {
-                add = count;
-                break;
-            }
-            Ordering::Equal => {
-                add = count + 1;
-                break;
-            }
-            Ordering::Greater => (),
-        }
+    let delta = 0.00000001;
 
-        if (time - v) * v > dist {
-            count += 1;
-        }
+    let on_margin = if (a - a.round()).abs() < delta {
+        true
+    } else {
+        false
+    };
+
+    let a = a.ceil() as i64;
+    let b = b.floor() as i64;
+
+    if on_margin {
+        b - a - 1
+    } else {
+        b - a + 1
     }
-
-    count + add
 }
 
 fn combine_numbers(numbers: &[i64]) -> i64 {
