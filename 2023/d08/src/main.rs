@@ -21,8 +21,6 @@ fn solve(filename: &str) -> (usize, usize) {
         nodes.insert(node, (left, right));
     }
 
-    result.0 = transform("AAA", &instructions, &nodes, false);
-
     let mut current: Vec<String> = vec![];
 
     for key in nodes.keys() {
@@ -31,11 +29,15 @@ fn solve(filename: &str) -> (usize, usize) {
         }
     }
 
+    current.sort();
+
     let mut counts: Vec<usize> = vec![];
 
     for c in current {
-        counts.push(transform(&c, &instructions, &nodes, true));
+        counts.push(transform(&c, &instructions, &nodes));
     }
+
+    result.0 = counts[0];
 
     for c in counts {
         result.1 = lcm(result.1, c);
@@ -59,7 +61,6 @@ fn transform(
     start: &str,
     instructions: &[char],
     nodes: &HashMap<String, (String, String)>,
-    two: bool,
 ) -> usize {
     let mut count = 0;
     let mut current = start.to_string();
@@ -72,10 +73,7 @@ fn transform(
             _ => (),
         }
         count += 1;
-        if current == "ZZZ" && !two {
-            return count;
-        }
-        if current.ends_with('Z') && two {
+        if current.ends_with('Z') {
             return count;
         }
     }
