@@ -17,12 +17,12 @@ mod tests {
 
     #[test]
     fn test_one() {
-        assert_eq!(solve("input.txt").0, 0);
+        assert_eq!(solve("input_test.in").0, 0);
     }
 
     #[test]
     fn test_two() {
-        assert_eq!(solve("input.txt").1, 0);
+        assert_eq!(solve("input_test.in").1, 0);
     }
 }
 
