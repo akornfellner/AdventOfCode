@@ -48,7 +48,7 @@ fn solve(filename: &str) -> (String, String) {
             }
             correct(&mut pos1, &board1);
             correct(&mut new, &board2);
-            if !(board2[new.0 as usize][new.1 as usize] == '-') {
+            if board2[new.0 as usize][new.1 as usize] != '-' {
                 pos2 = new;
             }
         }
