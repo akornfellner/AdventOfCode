@@ -37,7 +37,7 @@ fn solve(filename: &str) -> (i32, i32) {
     }
 
     let mut prev = start.clone();
-    let mut pos = start.get_valid_neighbors(&map, &tiles)[0].clone();
+    let mut pos = start.get_valid_neighbor(&map, &tiles).clone();
 
     let mut loop_tiles: HashSet<Pos> = HashSet::new();
     loop_tiles.insert(start.clone());
@@ -62,14 +62,14 @@ fn solve(filename: &str) -> (i32, i32) {
     let clockwise = left_count < right_count;
 
     let mut prev = start.clone();
-    let mut pos = start.get_valid_neighbors(&map, &tiles)[0].clone();
+    let mut pos = start.get_valid_neighbor(&map, &tiles);
     let mut inclusions: HashSet<Pos> = HashSet::new();
     let mut direction;
 
     loop {
         direction = Direction::get(&prev, &pos);
-        let n1 = prev.get_neighbor(&direction, clockwise, &map);
-        let n2 = pos.get_neighbor(&direction, clockwise, &map);
+        let n1 = prev.get_inside_neighbor(&direction, clockwise, &map);
+        let n2 = pos.get_inside_neighbor(&direction, clockwise, &map);
         if !loop_tiles.contains(&n1) {
             inclusions.insert(n1.clone());
         }
@@ -167,7 +167,12 @@ impl Pos {
         direction
     }
 
-    fn get_neighbor(&self, direction: &Direction, clockwise: bool, map: &[Vec<char>]) -> Self {
+    fn get_inside_neighbor(
+        &self,
+        direction: &Direction,
+        clockwise: bool,
+        map: &[Vec<char>],
+    ) -> Self {
         match direction {
             Direction::Up => {
                 if clockwise {
@@ -247,7 +252,7 @@ impl Pos {
         neighbors
     }
 
-    fn get_valid_neighbors(&self, map: &[Vec<char>], tiles: &Tiles) -> Vec<Self> {
+    fn get_valid_neighbor(&self, map: &[Vec<char>], tiles: &Tiles) -> Self {
         let mut candidates: Vec<Self> = vec![];
         let (row, col) = (self.x, self.y);
 
@@ -267,18 +272,16 @@ impl Pos {
             candidates.push(Self::from(row, col + 1));
         }
 
-        let mut neighbors: Vec<Self> = vec![];
-
         for c in candidates {
             let (a, b) = *tiles.get(&map[c.x as usize][c.y as usize]).unwrap();
             if c.x + a.0 == self.x && c.y + a.1 == self.y
                 || c.x + b.0 == self.x && c.y + b.1 == self.y
             {
-                neighbors.push(c);
+                return c;
             }
         }
 
-        neighbors
+        Pos::new()
     }
 }
 
