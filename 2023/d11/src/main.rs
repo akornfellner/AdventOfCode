@@ -11,28 +11,28 @@ fn solve(filename: &str) -> (usize, usize) {
     let mut result = (0, 0);
 
     let mut galaxies: Vec<(usize, usize)> = vec![];
-    let mut drows: HashSet<usize> = HashSet::new();
-    let mut tmp: HashSet<usize> = HashSet::new();
+    let mut xtmp: HashSet<usize> = HashSet::new();
+    let mut ytmp: HashSet<usize> = HashSet::new();
 
     let mut cols = 0;
+    let mut rows = 0;
 
     for (x, line) in input.lines().enumerate() {
-        let mut found = false;
         for (y, c) in line.chars().enumerate() {
             if c == '#' {
                 galaxies.push((x, y));
-                tmp.insert(y);
-                found = true;
+                xtmp.insert(x);
+                ytmp.insert(y);
             }
+            rows = x;
             cols = y;
-        }
-        if !found {
-            drows.insert(x);
         }
     }
 
+    let mut drows: HashSet<usize> = (0..rows).collect();
+    drows = drows.difference(&xtmp).copied().collect();
     let mut dcols: HashSet<usize> = (0..cols).collect();
-    dcols = dcols.difference(&tmp).copied().collect();
+    dcols = dcols.difference(&ytmp).copied().collect();
 
     for i in 0..galaxies.len() {
         for j in i + 1..galaxies.len() {
