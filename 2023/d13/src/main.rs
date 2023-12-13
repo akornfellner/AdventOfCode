@@ -1,5 +1,5 @@
 fn main() {
-    let (p1, p2) = solve("input.in");
+    let (p1, p2) = solve("input_test.in");
     println!("Part one: {}", p1);
     println!("Part two: {}", p2);
 }
@@ -12,10 +12,19 @@ fn solve(filename: &str) -> (usize, usize) {
         .map(Pattern::from)
         .collect::<Vec<Pattern>>();
 
-    for pattern in &patterns {
-        let (r, c) = pattern.get_symmetry();
-        result.0 += r * 100 + c;
+    let mut twos: [usize; 17] = [0; 17];
+
+    for (i, two) in twos.iter_mut().enumerate() {
+        *two = 2usize.pow(i as u32);
     }
+
+    // for pattern in &patterns {
+    //     let (r, c) = pattern.get_symmetry();
+    //     result.0 += r * 100 + c;
+    // }
+
+    println!("{:?}", patterns[1].get_symmetry1(&twos));
+    println!("{:?}", patterns[1].get_symmetry2(&twos));
 
     result
 }
@@ -86,10 +95,63 @@ impl Pattern {
         i
     }
 
-    fn get_symmetry(&self) -> (usize, usize) {
+    fn find_symmetry2(list: &[usize], twos: &[usize]) -> usize {
+        let mut i = 0usize;
+        let mut is_symmetric = false;
+
+        while !is_symmetric && i < list.len() - 1 {
+            let mut count = 0;
+            for j in i + 1..list.len() {
+                let diff = (list[j - 1] as i32 - list[j] as i32).abs() as usize;
+                if list[j - 1] == list[j] {
+                    is_symmetric = true;
+                    i = j - 1;
+                    break;
+                } else if twos.contains(&diff) {
+                    is_symmetric = true;
+                    i = j - 1;
+                    break;
+                }
+            }
+
+            if is_symmetric {
+                let mut min = i as i32;
+                let mut max = i + 1;
+
+                while min >= 0 && max < list.len() {
+                    let diff = (list[min as usize] as i32 - list[max] as i32).abs() as usize;
+
+                    if diff != 0 && twos.contains(&diff) && count == 0 {
+                        count += 1;
+                    } else if diff != 0 {
+                        is_symmetric = false;
+                        break;
+                    }
+                    min -= 1;
+                    max += 1;
+                }
+            }
+            i += 1;
+        }
+
+        if !is_symmetric {
+            i = 0;
+        }
+
+        i
+    }
+
+    fn get_symmetry1(&self, twos: &[usize]) -> (usize, usize) {
         (
             Self::find_symmetry(&self.rows),
             Self::find_symmetry(&self.cols),
+        )
+    }
+
+    fn get_symmetry2(&self, twos: &[usize]) -> (usize, usize) {
+        (
+            Self::find_symmetry2(&self.rows, twos),
+            Self::find_symmetry2(&self.cols, twos),
         )
     }
 }
