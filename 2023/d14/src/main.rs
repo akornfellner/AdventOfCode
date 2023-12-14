@@ -28,14 +28,9 @@ fn solve(filename: &str) -> (usize, usize) {
 
     let start = fields.iter().position(|x| x == &field).unwrap();
     let length = end - start;
-
     let rest = (1000000000 - start) % length;
 
-    for _ in 0..rest {
-        cycle(&mut field);
-    }
-
-    result.1 = total_load(&field, true);
+    result.1 = total_load(&fields[start + rest], true);
 
     result
 }
