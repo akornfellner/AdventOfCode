@@ -30,7 +30,7 @@ fn solve(filename: &str) -> (usize, usize) {
 
     let a = dijkstra(
         &start,
-        |n| n.neighbors(&field, false),
+        |n| n.successors(&field, false),
         |n| n.x == field.len() - 1 && n.y == field[0].len() - 1,
     )
     .unwrap();
@@ -39,7 +39,7 @@ fn solve(filename: &str) -> (usize, usize) {
 
     let a = dijkstra(
         &start,
-        |n| n.neighbors(&field, true),
+        |n| n.successors(&field, true),
         |n| n.x == field.len() - 1 && n.y == field[0].len() - 1,
     )
     .unwrap();
@@ -58,7 +58,7 @@ struct Node {
 }
 
 impl Node {
-    fn neighbors(&self, field: &[Vec<usize>], two: bool) -> Vec<(Node, usize)> {
+    fn successors(&self, field: &[Vec<usize>], two: bool) -> Vec<(Node, usize)> {
         let min = if !two || self.steps == 0 { 0 } else { 4 };
         let max = if two { 10 } else { 3 };
 
