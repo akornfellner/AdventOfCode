@@ -1,11 +1,9 @@
-use std::{collections::HashSet, thread};
+use std::collections::HashSet;
 
 fn main() {
-    let start = std::time::Instant::now();
     let (p1, p2) = solve("input.in");
     println!("Part one: {}", p1);
     println!("Part two: {}", p2);
-    println!("Duration: {:?}", start.elapsed());
 }
 
 fn solve(filename: &str) -> (usize, usize) {
@@ -29,28 +27,20 @@ fn solve(filename: &str) -> (usize, usize) {
         &mut HashSet::new(),
     );
 
-    let field2 = field.clone();
-
-    let t = thread::spawn(move || {
-        let mut max = 0;
-
-        for i in 0..field2.len() {
-            max = max.max(walk(
-                (i, 0),
-                &mut field2.clone(),
-                Direction::Right,
-                &mut HashSet::new(),
-            ));
-            max = max.max(walk(
-                (i, field2[0].len() - 1),
-                &mut field2.clone(),
-                Direction::Left,
-                &mut HashSet::new(),
-            ));
-        }
-        max
-    });
-
+    for i in 0..field.len() {
+        result.1 = result.1.max(walk(
+            (i, 0),
+            &mut field.clone(),
+            Direction::Right,
+            &mut HashSet::new(),
+        ));
+        result.1 = result.1.max(walk(
+            (i, field[0].len() - 1),
+            &mut field.clone(),
+            Direction::Left,
+            &mut HashSet::new(),
+        ));
+    }
     for i in 0..field[0].len() {
         result.1 = result.1.max(walk(
             (0, i),
@@ -65,8 +55,6 @@ fn solve(filename: &str) -> (usize, usize) {
             &mut HashSet::new(),
         ));
     }
-
-    result.1 = result.1.max(t.join().unwrap());
 
     result
 }
