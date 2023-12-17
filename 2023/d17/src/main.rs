@@ -30,7 +30,7 @@ fn solve(filename: &str) -> (usize, usize) {
 
     let a = dijkstra(
         &start,
-        |n| n.neighbors(&field),
+        |n| n.neighbors(&field, false),
         |n| n.x == field.len() - 1 && n.y == field[0].len() - 1,
     )
     .unwrap();
@@ -39,7 +39,7 @@ fn solve(filename: &str) -> (usize, usize) {
 
     let a = dijkstra(
         &start,
-        |n| n.neighbors2(&field),
+        |n| n.neighbors(&field, true),
         |n| n.x == field.len() - 1 && n.y == field[0].len() - 1,
     )
     .unwrap();
@@ -58,14 +58,17 @@ struct Node {
 }
 
 impl Node {
-    fn neighbors(&self, field: &[Vec<usize>]) -> Vec<(Node, usize)> {
+    fn neighbors(&self, field: &[Vec<usize>], two: bool) -> Vec<(Node, usize)> {
+        let min = if !two || self.steps == 0 { 0 } else { 4 };
+        let max = if two { 10 } else { 3 };
+
         let xmax = field.len() - 1;
         let ymax = field[0].len() - 1;
         let mut result: Vec<(Node, usize)> = vec![];
 
         match self.direction {
             Direction::Up => {
-                if self.steps < 3 && self.x > 0 {
+                if self.steps < max && self.x > 0 {
                     result.push((
                         Node {
                             x: self.x - 1,
@@ -76,7 +79,7 @@ impl Node {
                         field[self.x - 1][self.y],
                     ));
                 }
-                if self.y > 0 {
+                if self.y > 0 && self.steps >= min {
                     result.push((
                         Node {
                             x: self.x,
@@ -87,7 +90,7 @@ impl Node {
                         field[self.x][self.y - 1],
                     ));
                 }
-                if self.y < ymax {
+                if self.y < ymax && self.steps >= min {
                     result.push((
                         Node {
                             x: self.x,
@@ -100,7 +103,7 @@ impl Node {
                 }
             }
             Direction::Down => {
-                if self.steps < 3 && self.x < xmax {
+                if self.steps < max && self.x < xmax {
                     result.push((
                         Node {
                             x: self.x + 1,
@@ -111,7 +114,7 @@ impl Node {
                         field[self.x + 1][self.y],
                     ));
                 }
-                if self.y > 0 {
+                if self.y > 0 && self.steps >= min {
                     result.push((
                         Node {
                             x: self.x,
@@ -122,7 +125,7 @@ impl Node {
                         field[self.x][self.y - 1],
                     ));
                 }
-                if self.y < ymax {
+                if self.y < ymax && self.steps >= min {
                     result.push((
                         Node {
                             x: self.x,
@@ -135,7 +138,7 @@ impl Node {
                 }
             }
             Direction::Left => {
-                if self.steps < 3 && self.y > 0 {
+                if self.steps < max && self.y > 0 {
                     result.push((
                         Node {
                             x: self.x,
@@ -146,7 +149,7 @@ impl Node {
                         field[self.x][self.y - 1],
                     ));
                 }
-                if self.x > 0 {
+                if self.x > 0 && self.steps >= min {
                     result.push((
                         Node {
                             x: self.x - 1,
@@ -157,7 +160,7 @@ impl Node {
                         field[self.x - 1][self.y],
                     ));
                 }
-                if self.x < xmax {
+                if self.x < xmax && self.steps >= min {
                     result.push((
                         Node {
                             x: self.x + 1,
@@ -170,7 +173,7 @@ impl Node {
                 }
             }
             Direction::Right => {
-                if self.steps < 3 && self.y < ymax {
+                if self.steps < max && self.y < ymax {
                     result.push((
                         Node {
                             x: self.x,
@@ -181,7 +184,7 @@ impl Node {
                         field[self.x][self.y + 1],
                     ));
                 }
-                if self.x > 0 {
+                if self.x > 0 && self.steps >= min {
                     result.push((
                         Node {
                             x: self.x - 1,
@@ -192,158 +195,7 @@ impl Node {
                         field[self.x - 1][self.y],
                     ));
                 }
-                if self.x < xmax {
-                    result.push((
-                        Node {
-                            x: self.x + 1,
-                            y: self.y,
-                            direction: Direction::Down,
-                            steps: 1,
-                        },
-                        field[self.x + 1][self.y],
-                    ));
-                }
-            }
-        }
-
-        result
-    }
-
-    fn neighbors2(&self, field: &[Vec<usize>]) -> Vec<(Node, usize)> {
-        let xmax = field.len() - 1;
-        let ymax = field[0].len() - 1;
-        let mut result: Vec<(Node, usize)> = vec![];
-
-        match self.direction {
-            Direction::Up => {
-                if self.steps < 10 && self.x > 0 {
-                    result.push((
-                        Node {
-                            x: self.x - 1,
-                            y: self.y,
-                            direction: Direction::Up,
-                            steps: self.steps + 1,
-                        },
-                        field[self.x - 1][self.y],
-                    ));
-                }
-                if self.y > 0 && self.steps >= 4 {
-                    result.push((
-                        Node {
-                            x: self.x,
-                            y: self.y - 1,
-                            direction: Direction::Left,
-                            steps: 1,
-                        },
-                        field[self.x][self.y - 1],
-                    ));
-                }
-                if self.y < ymax && self.steps >= 4 {
-                    result.push((
-                        Node {
-                            x: self.x,
-                            y: self.y + 1,
-                            direction: Direction::Right,
-                            steps: 1,
-                        },
-                        field[self.x][self.y + 1],
-                    ));
-                }
-            }
-            Direction::Down => {
-                if self.steps < 10 && self.x < xmax {
-                    result.push((
-                        Node {
-                            x: self.x + 1,
-                            y: self.y,
-                            direction: Direction::Down,
-                            steps: self.steps + 1,
-                        },
-                        field[self.x + 1][self.y],
-                    ));
-                }
-                if self.y > 0 && self.steps >= 4 {
-                    result.push((
-                        Node {
-                            x: self.x,
-                            y: self.y - 1,
-                            direction: Direction::Left,
-                            steps: 1,
-                        },
-                        field[self.x][self.y - 1],
-                    ));
-                }
-                if self.y < ymax && self.steps >= 4 {
-                    result.push((
-                        Node {
-                            x: self.x,
-                            y: self.y + 1,
-                            direction: Direction::Right,
-                            steps: 1,
-                        },
-                        field[self.x][self.y + 1],
-                    ));
-                }
-            }
-            Direction::Left => {
-                if self.steps < 10 && self.y > 0 {
-                    result.push((
-                        Node {
-                            x: self.x,
-                            y: self.y - 1,
-                            direction: Direction::Left,
-                            steps: self.steps + 1,
-                        },
-                        field[self.x][self.y - 1],
-                    ));
-                }
-                if self.x > 0 && self.steps >= 4 {
-                    result.push((
-                        Node {
-                            x: self.x - 1,
-                            y: self.y,
-                            direction: Direction::Up,
-                            steps: 1,
-                        },
-                        field[self.x - 1][self.y],
-                    ));
-                }
-                if self.x < xmax && self.steps >= 4 {
-                    result.push((
-                        Node {
-                            x: self.x + 1,
-                            y: self.y,
-                            direction: Direction::Down,
-                            steps: 1,
-                        },
-                        field[self.x + 1][self.y],
-                    ));
-                }
-            }
-            Direction::Right => {
-                if self.steps < 10 && self.y < ymax {
-                    result.push((
-                        Node {
-                            x: self.x,
-                            y: self.y + 1,
-                            direction: Direction::Right,
-                            steps: self.steps + 1,
-                        },
-                        field[self.x][self.y + 1],
-                    ));
-                }
-                if self.x > 0 && self.steps >= 4 {
-                    result.push((
-                        Node {
-                            x: self.x - 1,
-                            y: self.y,
-                            direction: Direction::Up,
-                            steps: 1,
-                        },
-                        field[self.x - 1][self.y],
-                    ));
-                }
-                if self.x < xmax && self.steps >= 4 {
+                if self.x < xmax && self.steps >= min {
                     result.push((
                         Node {
                             x: self.x + 1,
