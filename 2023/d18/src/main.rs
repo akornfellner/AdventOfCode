@@ -1,13 +1,10 @@
-use geo::{Area, EuclideanLength};
-use geo_types::{Coord, LineString, Polygon};
-
 fn main() {
     let (p1, p2) = solve("input.in");
     println!("Part one: {}", p1);
     println!("Part two: {}", p2);
 }
 
-fn solve(filename: &str) -> (usize, usize) {
+fn solve(filename: &str) -> (i64, i64) {
     let input = std::fs::read_to_string(filename).unwrap();
     let mut result = (0, 0);
 
@@ -20,30 +17,37 @@ fn solve(filename: &str) -> (usize, usize) {
     result
 }
 
-fn get_area(cmds: &[Cmd]) -> usize {
+fn get_area(cmds: &[Cmd]) -> i64 {
     let corners = get_corners(cmds);
 
-    let polygon = Polygon::new(corners.clone().into(), vec![]);
-    let linestring = LineString::from(corners);
+    let mut bound = 0i64;
+    let mut area = 0i64;
 
-    let area = polygon.unsigned_area();
-    let perimeter = linestring.euclidean_length();
+    for i in 0..corners.len() - 1 {
+        let (x1, y1) = corners[i];
+        let (x2, y2) = corners[i + 1];
 
-    area.round() as usize + perimeter.round() as usize / 2 + 1
+        area += x1 * y2 - x2 * y1;
+        bound += (x1 - x2).abs() + (y1 - y2).abs();
+    }
+
+    area = area.abs() / 2;
+
+    area + bound / 2 + 1
 }
 
-fn get_corners(cmds: &[Cmd]) -> Vec<Coord> {
-    let mut current = (0.0, 0.0);
-    let mut corners = vec![Coord::from(current)];
+fn get_corners(cmds: &[Cmd]) -> Vec<(i64, i64)> {
+    let mut current = (0, 0);
+    let mut corners = vec![current];
 
     for cmd in cmds {
         match cmd.direction {
-            Direction::Up => current.0 -= cmd.distance as f64,
-            Direction::Down => current.0 += cmd.distance as f64,
-            Direction::Left => current.1 -= cmd.distance as f64,
-            Direction::Right => current.1 += cmd.distance as f64,
+            Direction::Up => current.0 -= cmd.distance,
+            Direction::Down => current.0 += cmd.distance,
+            Direction::Left => current.1 -= cmd.distance,
+            Direction::Right => current.1 += cmd.distance,
         }
-        corners.push(Coord::from(current));
+        corners.push(current);
     }
 
     corners
