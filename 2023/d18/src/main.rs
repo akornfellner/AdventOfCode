@@ -1,11 +1,10 @@
-use std::{collections::HashSet, time};
+use geo::{Area, EuclideanLength};
+use geo_types::{Coord, LineString, Polygon};
 
 fn main() {
-    let start = time::Instant::now();
     let (p1, p2) = solve("input.in");
     println!("Part one: {}", p1);
     println!("Part two: {}", p2);
-    println!("Duration: {:?}", start.elapsed());
 }
 
 fn solve(filename: &str) -> (usize, usize) {
@@ -13,121 +12,41 @@ fn solve(filename: &str) -> (usize, usize) {
     let mut result = (0, 0);
 
     let cmds: Vec<Cmd> = input.lines().map(Cmd::from).collect();
-
-    result.0 = get_cubic_meters(&cmds);
-
     let cmds2: Vec<Cmd> = input.lines().map(Cmd::from_hex).collect();
+
+    result.0 = get_area(&cmds);
+    result.1 = get_area(&cmds2);
 
     result
 }
 
-fn get_cubic_meters(cmds: &[Cmd]) -> usize {
-    let mut current = (0, 0);
+fn get_area(cmds: &[Cmd]) -> usize {
+    let corners = get_corners(cmds);
 
-    let mut bounds: HashSet<(i64, i64)> = HashSet::new();
-    bounds.insert(current);
+    let polygon = Polygon::new(corners.clone().into(), vec![]);
+    let linestring = LineString::from(corners);
 
-    let mut inside: HashSet<(i64, i64)> = HashSet::new();
+    let area = polygon.unsigned_area();
+    let perimeter = linestring.euclidean_length();
 
-    let mut last_direction = Direction::Down;
-    let mut leftcount = 0;
-    let mut rightcount = 0;
+    area.round() as usize + perimeter.round() as usize / 2 + 1
+}
+
+fn get_corners(cmds: &[Cmd]) -> Vec<Coord> {
+    let mut current = (0.0, 0.0);
+    let mut corners = vec![Coord::from(current)];
 
     for cmd in cmds {
         match cmd.direction {
-            Direction::Up => match last_direction {
-                Direction::Left => rightcount += 1,
-                Direction::Right => leftcount += 1,
-                _ => {}
-            },
-            Direction::Down => match last_direction {
-                Direction::Left => leftcount += 1,
-                Direction::Right => rightcount += 1,
-                _ => {}
-            },
-            Direction::Left => match last_direction {
-                Direction::Up => leftcount += 1,
-                Direction::Down => rightcount += 1,
-                _ => {}
-            },
-            Direction::Right => match last_direction {
-                Direction::Up => rightcount += 1,
-                Direction::Down => leftcount += 1,
-                _ => {}
-            },
+            Direction::Up => current.0 -= cmd.distance as f64,
+            Direction::Down => current.0 += cmd.distance as f64,
+            Direction::Left => current.1 -= cmd.distance as f64,
+            Direction::Right => current.1 += cmd.distance as f64,
         }
-        last_direction = cmd.direction;
+        corners.push(Coord::from(current));
     }
 
-    let clockwise = if rightcount > leftcount { true } else { false };
-
-    for cmd in cmds {
-        for _ in 0..cmd.distance {
-            match cmd.direction {
-                Direction::Up => {
-                    current.0 -= 1;
-                    if clockwise {
-                        inside.insert((current.0 + 1, current.1 + 1));
-                        inside.insert((current.0, current.1 + 1));
-                    } else {
-                        inside.insert((current.0 + 1, current.1 - 1));
-                        inside.insert((current.0, current.1 - 1));
-                    }
-                }
-                Direction::Down => {
-                    current.0 += 1;
-                    if clockwise {
-                        inside.insert((current.0 - 1, current.1 - 1));
-                        inside.insert((current.0, current.1 - 1));
-                    } else {
-                        inside.insert((current.0 - 1, current.1 + 1));
-                        inside.insert((current.0, current.1 + 1));
-                    }
-                }
-                Direction::Left => {
-                    current.1 -= 1;
-                    if clockwise {
-                        inside.insert((current.0 - 1, current.1 + 1));
-                        inside.insert((current.0 - 1, current.1));
-                    } else {
-                        inside.insert((current.0 + 1, current.1 + 1));
-                        inside.insert((current.0 + 1, current.1));
-                    }
-                }
-                Direction::Right => {
-                    current.1 += 1;
-                    if clockwise {
-                        inside.insert((current.0 + 1, current.1 - 1));
-                        inside.insert((current.0 + 1, current.1));
-                    } else {
-                        inside.insert((current.0 - 1, current.1 - 1));
-                        inside.insert((current.0 - 1, current.1));
-                    }
-                }
-            }
-            bounds.insert(current);
-        }
-    }
-
-    let mut inside: HashSet<(i64, i64)> = inside.difference(&bounds).cloned().collect();
-    let mut rest: Vec<(i64, i64)> = inside.iter().map(|x| (x.0, x.1)).collect();
-
-    while !rest.is_empty() {
-        let current = rest.pop().unwrap();
-        inside.insert(current);
-        for (x, y) in [
-            (current.0 - 1, current.1),
-            (current.0 + 1, current.1),
-            (current.0, current.1 - 1),
-            (current.0, current.1 + 1),
-        ] {
-            if !bounds.contains(&(x, y)) && !inside.contains(&(x, y)) {
-                rest.push((x, y));
-            }
-        }
-    }
-
-    inside.len() + bounds.len()
+    corners
 }
 
 #[derive(Debug)]
