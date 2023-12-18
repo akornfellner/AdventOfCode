@@ -20,8 +20,8 @@ fn solve(filename: &str) -> (i64, i64) {
 fn get_area(cmds: &[Cmd]) -> i64 {
     let corners = get_corners(cmds);
 
-    let mut bound = 0i64;
-    let mut area = 0i64;
+    let mut bound = 0;
+    let mut area = 0;
 
     for i in 0..corners.len() - 1 {
         let (x1, y1) = corners[i];
