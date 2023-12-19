@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 fn main() {
-    let (p1, p2) = solve("input_test.in");
+    let (p1, p2) = solve("input.in");
     println!("Part one: {}", p1);
     println!("Part two: {}", p2);
 }
@@ -33,10 +33,113 @@ fn solve(filename: &str) -> (usize, usize) {
         }
     }
 
+    let mut start = RatingRange::from(1, 4000);
+
+    result.1 = run_workflow_range("in", &mut start, &workflows);
+
     result
 }
 
 type Workflows = HashMap<String, Workflow>;
+type Ranges = (Option<(usize, usize)>, Option<(usize, usize)>);
+
+fn run_workflow_range(key: &str, rr: &mut RatingRange, workflows: &Workflows) -> usize {
+    let workflow = workflows.get(key).unwrap();
+    let mut result = 0;
+
+    for rule in &workflow.rules {
+        match rule {
+            Rule::Comparison(c, op, value, next) => {
+                let index: usize = match c {
+                    'x' => 0,
+                    'm' => 1,
+                    'a' => 2,
+                    _ => 3,
+                };
+
+                let (transform, rest) = transfrom_range(rr.ratings[index], *op, *value);
+
+                if let Some(t) = transform {
+                    let mut new_rr = rr.clone();
+                    new_rr.ratings[index] = t;
+                    if let Some(r) = rest {
+                        rr.ratings[index] = r;
+                        if next == "A" {
+                            result += new_rr.count();
+                        } else if next != "R" {
+                            result += run_workflow_range(next, &mut new_rr, workflows);
+                        }
+                    } else if next == "A" {
+                        return new_rr.count();
+                    } else if next == "R" {
+                        return 0;
+                    } else {
+                        return run_workflow_range(next, rr, workflows);
+                    }
+                } else {
+                    rr.ratings[index] = rest.unwrap();
+                }
+            }
+            Rule::Empty(next) => {
+                if next == "A" {
+                    return result + rr.count();
+                } else if next == "R" {
+                    return result;
+                }
+                return result + run_workflow_range(next, rr, workflows);
+            }
+        }
+    }
+
+    result
+}
+
+fn transfrom_range(range: (usize, usize), op: char, value: usize) -> Ranges {
+    match op {
+        '<' => {
+            if range.1 < value {
+                (Some(range), None)
+            } else if range.0 >= value {
+                (None, Some(range))
+            } else {
+                (Some((range.0, value - 1)), Some((value, range.1)))
+            }
+        }
+        '>' => {
+            if range.0 > value {
+                (Some(range), None)
+            } else if range.1 <= value {
+                (None, Some(range))
+            } else {
+                (Some((value + 1, range.1)), Some((range.0, value)))
+            }
+        }
+        _ => (None, None),
+    }
+}
+
+#[derive(Debug, Clone)]
+struct RatingRange {
+    ratings: Vec<(usize, usize)>,
+}
+
+impl RatingRange {
+    fn count(&self) -> usize {
+        let mut count = 1;
+        for rating in &self.ratings {
+            count *= rating.1 - rating.0 + 1;
+        }
+        count
+    }
+}
+
+impl RatingRange {
+    fn from(start: usize, end: usize) -> Self {
+        Self {
+            ratings: vec![(start, end); 4],
+        }
+    }
+}
 
 fn run_workflow(key: &str, rating: &Rating, workflows: &Workflows) -> bool {
     let workflow = workflows.get(key).unwrap();
