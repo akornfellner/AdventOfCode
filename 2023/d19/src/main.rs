@@ -60,17 +60,17 @@ fn run_workflow_range(key: &str, rr: &mut RatingRange, workflows: &Workflows) ->
                 let (transform, rest) = transfrom_range(rr.ratings[index], *op, *value);
 
                 if let Some(t) = transform {
-                    let mut new_rr = rr.clone();
-                    new_rr.ratings[index] = t;
                     if let Some(r) = rest {
                         rr.ratings[index] = r;
+                        let mut new_rr = rr.clone();
+                        new_rr.ratings[index] = t;
                         if next == "A" {
                             result += new_rr.count();
                         } else if next != "R" {
                             result += run_workflow_range(next, &mut new_rr, workflows);
                         }
                     } else if next == "A" {
-                        return new_rr.count();
+                        return rr.count();
                     } else if next == "R" {
                         return 0;
                     } else {
