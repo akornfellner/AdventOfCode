@@ -135,19 +135,13 @@ fn send(
                 result.0 += dests.len();
                 for dest in &dests.clone() {
                     queue.push((dest.clone(), Pulse::Low));
-                    if let Some(Module::Conjuction(_, inputs)) = modules.get_mut(dest) {
-                        let entry = inputs.entry(name.to_string()).or_insert(Pulse::Low);
-                        *entry = Pulse::Low;
-                    }
+                    update_inputs(dest, name, Pulse::Low, modules);
                 }
             } else {
                 result.1 += dests.len();
                 for dest in &dests.clone() {
                     queue.push((dest.clone(), Pulse::High));
-                    if let Some(Module::Conjuction(_, inputs)) = modules.get_mut(dest) {
-                        let entry = inputs.entry(name.to_string()).or_insert(Pulse::Low);
-                        *entry = Pulse::High;
-                    }
+                    update_inputs(dest, name, Pulse::High, modules);
                 }
             }
         }
@@ -158,20 +152,14 @@ fn send(
                     result.0 += dests.len();
                     for dest in &dests.clone() {
                         queue.push((dest.clone(), Pulse::Low));
-                        if let Some(Module::Conjuction(_, inputs)) = modules.get_mut(dest) {
-                            let entry = inputs.entry(name.to_string()).or_insert(Pulse::Low);
-                            *entry = Pulse::Low;
-                        }
+                        update_inputs(dest, name, Pulse::Low, modules);
                     }
                 } else {
                     *state = true;
                     result.1 += dests.len();
                     for dest in &dests.clone() {
                         queue.push((dest.clone(), Pulse::High));
-                        if let Some(Module::Conjuction(_, inputs)) = modules.get_mut(dest) {
-                            let entry = inputs.entry(name.to_string()).or_insert(Pulse::Low);
-                            *entry = Pulse::High;
-                        }
+                        update_inputs(dest, name, Pulse::High, modules);
                     }
                 }
             }
@@ -183,10 +171,7 @@ fn send(
             }
             for dest in &dests.clone() {
                 queue.push((dest.clone(), pulse));
-                if let Some(Module::Conjuction(_, inputs)) = modules.get_mut(dest) {
-                    let entry = inputs.entry(name.to_string()).or_insert(Pulse::Low);
-                    *entry = pulse;
-                }
+                update_inputs(dest, name, pulse, modules);
             }
         }
     }
@@ -197,6 +182,13 @@ fn send(
 fn add_pulses(current: &mut (usize, usize), new: (usize, usize)) {
     current.0 += new.0;
     current.1 += new.1;
+}
+
+fn update_inputs(dest: &str, name: &str, pulse: Pulse, modules: &mut Mod) {
+    if let Some(Module::Conjuction(_, inputs)) = modules.get_mut(dest) {
+        let entry = inputs.entry(name.to_string()).or_insert(Pulse::Low);
+        *entry = pulse;
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
