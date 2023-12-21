@@ -1,12 +1,12 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 fn main() {
-    let (p1, p2) = solve("input_test.in", 50);
+    let (p1, p2) = solve("input.in");
     println!("Part one: {}", p1);
     println!("Part two: {}", p2);
 }
 
-fn solve(filename: &str, steps: i64) -> (i64, i64) {
+fn solve(filename: &str) -> (i64, i64) {
     let input = std::fs::read_to_string(filename).unwrap();
     let mut result = (0, 0);
 
@@ -29,16 +29,17 @@ fn solve(filename: &str, steps: i64) -> (i64, i64) {
         gardens.push(row);
     }
 
-    let mut transformations: Transformations = HashMap::new();
+    let size = gardens.len() as i64;
 
     let mut queue = HashSet::new();
     queue.insert(start);
+    let mut sols = vec![];
 
-    for _ in 0..steps {
+    for i in 1..=65 + 2 * size {
         let mut new_queue = HashSet::new();
 
         for pos in queue {
-            let neighbors = get_neighbors(pos, &gardens, &mut transformations);
+            let neighbors = get_neighbors(pos, &gardens);
 
             for neighbor in neighbors {
                 new_queue.insert(neighbor);
@@ -46,30 +47,30 @@ fn solve(filename: &str, steps: i64) -> (i64, i64) {
         }
 
         queue = new_queue;
+
+        if i == 64 {
+            result.0 += queue.len() as i64;
+        }
+
+        if (i - 65) % size == 0 {
+            sols.push(queue.len() as i64);
+        }
     }
 
-    result.0 += queue.len() as i64;
+    let c = sols[0];
+    let a = (sols[2] - 2 * sols[1] + c) / 2;
+    let b = sols[1] - c - a;
+
+    let x = (26501365 - 65) / size;
+
+    result.1 = a * x * x + b * x + c;
 
     result
 }
 
-type Transformations = HashMap<(i64, i64), Vec<(i64, i64)>>;
-
-fn get_neighbors(
-    pos: (i64, i64),
-    gardens: &[Vec<Garden>],
-    transformations: &mut Transformations,
-) -> Vec<(i64, i64)> {
+fn get_neighbors(pos: (i64, i64), gardens: &[Vec<Garden>]) -> Vec<(i64, i64)> {
     let mut neighbors = vec![];
     let (x, y) = pos;
-
-    let (i, j, dx, dy) = transform(x, y, gardens);
-    if transformations.contains_key(&(i, j)) {
-        for neighbor in transformations.get(&(i, j)).unwrap() {
-            neighbors.push((neighbor.0 + dx, neighbor.1 + dy));
-        }
-        return neighbors;
-    }
 
     let (i, j, _, _) = transform(x - 1, y, gardens);
     if let Garden::Plot = gardens[i as usize][j as usize] {
@@ -89,12 +90,6 @@ fn get_neighbors(
     let (i, j, _, _) = transform(x, y + 1, gardens);
     if let Garden::Plot = gardens[i as usize][j as usize] {
         neighbors.push((x, y + 1));
-    }
-
-    if (x >= 0 && x < gardens.len() as i64 && y >= 0 && y < gardens[0].len() as i64)
-        && !transformations.contains_key(&pos)
-    {
-        transformations.insert(pos, neighbors.clone());
     }
 
     neighbors
