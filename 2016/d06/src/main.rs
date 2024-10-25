@@ -1,10 +1,12 @@
 use std::collections::HashMap;
 
 fn main() {
-    println!("Part one: {}", solve("input.txt"));
+    let (p1, p2) = solve("input.txt");
+    println!("Part one: {}", p1);
+    println!("Part two: {}", p2);
 }
 
-fn solve(file: &str) -> String {
+fn solve(file: &str) -> (String, String) {
     let input = std::fs::read_to_string(file).unwrap();
     let cols = input.lines().next().unwrap().len();
     let mut letters: Vec<HashMap<char, usize>> = vec![HashMap::new(); cols];
@@ -26,14 +28,16 @@ fn solve(file: &str) -> String {
         pairs.push(tmp);
     }
 
-    let mut result = String::new();
+    let mut result1 = String::new();
+    let mut result2 = String::new();
 
     for pair in &mut pairs {
         pair.sort();
-        result.push(pair[0].letter);
+        result1.push(pair[0].letter);
+        result2.push(pair[pair.len() - 1].letter);
     }
 
-    result
+    (result1, result2)
 }
 
 struct Pair {
