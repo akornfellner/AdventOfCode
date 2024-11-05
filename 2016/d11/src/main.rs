@@ -2,12 +2,20 @@ use pathfinding::prelude::bfs;
 use std::collections::HashMap;
 
 fn main() {
-    println!("Part one: {}", solve("input.txt"));
+    println!("Part one: {}", solve("input.txt", false));
+    println!("Part two: {}", solve("input.txt", true));
 }
 
-fn solve(file: &str) -> usize {
+fn solve(file: &str, two: bool) -> usize {
     let input = std::fs::read_to_string(file).unwrap();
-    let start = State::from_input(&input);
+
+    let mut start = State::from_input(&input);
+
+    if two {
+        start.1.push((1, 1));
+        start.1.push((1, 1));
+    }
+
     let goal = State(4, vec![(4, 4); start.size()]);
 
     let result = bfs(&start, |s| s.successors(), |s| *s == goal).unwrap();
@@ -84,6 +92,10 @@ impl State {
 
         for next_floor in floors {
             for (i, (gen, chip)) in self.1.iter().enumerate() {
+                if *gen != floor && *chip != floor {
+                    continue;
+                }
+
                 if *gen == floor && *chip == floor {
                     let mut next = self.clone();
                     next.0 = next_floor;
@@ -95,6 +107,10 @@ impl State {
                 }
 
                 for (j, (gen2, chip2)) in self.1.iter().enumerate().skip(i) {
+                    if *gen2 != floor && *chip2 != floor {
+                        continue;
+                    }
+
                     if i == j {
                         let mut next = self.clone();
                         next.0 = next_floor;
