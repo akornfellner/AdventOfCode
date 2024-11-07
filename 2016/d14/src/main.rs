@@ -1,26 +1,24 @@
-use std::cmp::Ordering;
-
 fn main() {
     println!("Part one: {}", solve("qzyelonm", false));
-    println!("Part one: {}", solve("abc", true));
+    println!("Part one: {}", solve("qzyelonm", true));
 }
 
 fn solve(salt: &str, two: bool) -> usize {
     let mut tries: Vec<(Hash, char)> = vec![];
-    let mut valid: Vec<Hash> = vec![];
+    let mut valid: Vec<usize> = vec![];
     let mut count = 0usize;
     let mut index = 0usize;
 
     loop {
         let hash = Hash::compute(salt, index, two);
 
-        if count >= 64 && hash.index > valid[63].index + 1000 {
+        if count >= 64 && hash.index > valid[63] + 1000 {
             break;
         }
 
         for (h, c) in &tries {
-            if h.index + 1000 >= hash.index && hash.contains_five(*c) {
-                valid.push(h.clone());
+            if h.index + 1000 >= hash.index && !valid.contains(&h.index) && hash.contains_five(*c) {
+                valid.push(h.index);
                 count += 1;
             }
         }
@@ -34,14 +32,10 @@ fn solve(salt: &str, two: bool) -> usize {
 
     valid.sort();
 
-    for (i, v) in valid.iter().enumerate() {
-        println!("{}: {}", i + 1, v.index);
-    }
-
-    valid[63].index
+    valid[63]
 }
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone)]
 struct Hash {
     hash: String,
     index: usize,
@@ -87,17 +81,5 @@ impl Hash {
     fn contains_five(&self, c: char) -> bool {
         let sub = String::from(c).repeat(5);
         self.hash.contains(&sub)
-    }
-}
-
-impl Ord for Hash {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.index.cmp(&other.index)
-    }
-}
-
-impl PartialOrd for Hash {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
     }
 }
