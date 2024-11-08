@@ -4,7 +4,7 @@ fn main() {
 }
 
 fn solve(salt: &str, two: bool) -> usize {
-    let mut tries: Vec<(Hash, char)> = vec![];
+    let mut tries: Vec<(usize, char)> = vec![];
     let mut valid: Vec<usize> = vec![];
     let mut count = 0usize;
     let mut index = 0usize;
@@ -12,19 +12,19 @@ fn solve(salt: &str, two: bool) -> usize {
     loop {
         let hash = Hash::compute(salt, index, two);
 
-        if count >= 64 && hash.index > valid[63] + 1000 {
+        if count >= 64 && index > valid[63] + 1000 {
             break;
         }
 
-        for (h, c) in &tries {
-            if h.index + 1000 >= hash.index && !valid.contains(&h.index) && hash.contains_five(*c) {
-                valid.push(h.index);
+        for (i, c) in &tries {
+            if i + 1000 >= index && !valid.contains(i) && hash.contains_five(*c) {
+                valid.push(*i);
                 count += 1;
             }
         }
 
         if let Some(c) = hash.contains_three() {
-            tries.push((hash.clone(), c));
+            tries.push((index, c));
         }
 
         index += 1;
@@ -38,7 +38,6 @@ fn solve(salt: &str, two: bool) -> usize {
 #[derive(Debug, Clone)]
 struct Hash {
     hash: String,
-    index: usize,
 }
 
 impl Hash {
@@ -52,9 +51,9 @@ impl Hash {
                 hash = format!("{:x}", md5::compute(hash.as_bytes()));
             }
 
-            Hash { hash, index }
+            Hash { hash }
         } else {
-            Hash { hash, index }
+            Hash { hash }
         }
     }
 
