@@ -28,8 +28,8 @@ fn solve(filename: &str) -> (usize, usize) {
 
     for x in 0..field.len() {
         for y in 0..field[0].len() {
-            for dir in &dirs {
-                if field[x][y] == 'X' {
+            if field[x][y] == 'X' {
+                for dir in &dirs {
                     p1 += find_xmas(&field, (x, y), *dir);
                 }
             }
