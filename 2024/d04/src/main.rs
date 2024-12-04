@@ -12,15 +12,15 @@ fn solve(filename: &str) -> (usize, usize) {
         .map(|line| line.chars().collect::<Vec<char>>())
         .collect::<Vec<Vec<char>>>();
 
-    let dirs = vec![
-        (1, 0),
-        (0, 1),
-        (1, 1),
-        (1, -1),
-        (-1, 0),
-        (0, -1),
+    let dirs = [
         (-1, -1),
+        (-1, 0),
         (-1, 1),
+        (0, -1),
+        (0, 1),
+        (1, -1),
+        (1, 0),
+        (1, 1),
     ];
 
     let mut p1 = 0;
