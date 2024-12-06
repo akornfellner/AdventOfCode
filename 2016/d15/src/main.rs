@@ -24,7 +24,7 @@ fn solve(filename: &str) -> (usize, usize) {
 
     loop {
         p2 += cycle;
-        if (p2 + 7) % 11 == 0 {
+        if (p2 + discs.len() + 1) % 11 == 0 {
             break;
         }
     }
