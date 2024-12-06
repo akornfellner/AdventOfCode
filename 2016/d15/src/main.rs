@@ -12,9 +12,6 @@ fn solve(filename: &str) -> (usize, usize) {
         .map(|(i, l)| Disc::from(l, i + 1))
         .collect();
 
-    let mut discs2 = discs.clone();
-    discs2.push(Disc::new(discs.len() + 1, 11));
-
     let mut p1 = 0;
 
     while !discs.iter().all(|d| d.is_open()) {
@@ -22,11 +19,14 @@ fn solve(filename: &str) -> (usize, usize) {
         p1 += 1;
     }
 
-    let mut p2 = 0;
+    let mut p2 = p1;
+    let cycle = discs.iter().map(|d| d.n).product::<usize>();
 
-    while !discs2.iter().all(|d| d.is_open()) {
-        discs2.iter_mut().for_each(|d| d.tick());
-        p2 += 1;
+    loop {
+        p2 += cycle;
+        if (p2 + 7) % 11 == 0 {
+            break;
+        }
     }
 
     (p1, p2)
