@@ -58,22 +58,21 @@ fn solve(filename: &str) -> (usize, usize) {
         map[p.0 as usize][p.1 as usize] = Field::Obstacle;
         let mut d = 0usize;
         let mut cur_pos = start;
-        let mut visited = HashSet::new();
-        visited.insert((start, d));
+        let mut c = 0;
 
         loop {
             let (nx, ny) = next(&cur_pos, d, &directions);
 
             if nx < 0 || nx >= map.len() as i32 || ny < 0 || ny >= map[0].len() as i32 {
                 break;
-            } else if visited.contains(&((nx, ny), d)) {
+            } else if c == map.len() * map[0].len() {
                 p2 += 1;
                 break;
             } else if let Field::Obstacle = map[nx as usize][ny as usize] {
                 d = (d + 1) % 4;
             } else {
                 cur_pos = (nx, ny);
-                visited.insert((cur_pos, d));
+                c += 1;
             }
         }
         map[p.0 as usize][p.1 as usize] = Field::Empty;
