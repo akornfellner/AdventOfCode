@@ -9,14 +9,13 @@ fn solve(filename: &str) -> (u64, u64) {
     let mut p1 = 0;
     let mut p2 = 0;
 
-    let equations = input.lines().map(Equation::from).collect::<Vec<Equation>>();
-
-    for eq in &equations {
-        if eq.is_valid(0, 0, false) {
-            p1 += eq.result;
+    for line in input.lines() {
+        let equation = Equation::from(line);
+        if equation.is_valid(0, 0, false) {
+            p1 += equation.result;
         }
-        if eq.is_valid(0, 0, true) {
-            p2 += eq.result;
+        if equation.is_valid(0, 0, true) {
+            p2 += equation.result;
         }
     }
 
@@ -52,7 +51,11 @@ impl Equation {
 }
 
 fn concat(first: u64, second: u64) -> u64 {
-    (first.to_string() + &second.to_string())
-        .parse::<u64>()
-        .unwrap()
+    let mut n = first;
+    let mut m = second;
+    while m > 0 {
+        n *= 10;
+        m /= 10;
+    }
+    n + second
 }
