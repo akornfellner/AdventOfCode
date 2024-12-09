@@ -52,8 +52,8 @@ fn solve(filename: &str) -> (usize, usize) {
 
     while !finished {
         match step(&mut filesystem, take) {
-            Some(i) => {
-                take = i;
+            Some(t) => {
+                take = t;
             }
             None => {
                 finished = true;
