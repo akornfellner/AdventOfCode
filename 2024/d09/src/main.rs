@@ -1,16 +1,14 @@
 fn main() {
-    let start = std::time::Instant::now();
     let (p1, p2) = solve("input.txt");
     println!("Part one: {}", p1);
     println!("Part two: {}", p2);
-    println!("Time: {}ms", start.elapsed().as_millis());
 }
 
 fn solve(filename: &str) -> (usize, usize) {
     let input = std::fs::read_to_string(filename).unwrap();
 
-    let mut free = Vec::new();
-    let mut full = Vec::new();
+    let mut free = vec![];
+    let mut full = vec![];
 
     let mut size = 0;
 
@@ -26,7 +24,7 @@ fn solve(filename: &str) -> (usize, usize) {
         size += c;
     }
 
-    while free.len() > 0 {
+    while !free.is_empty() {
         let next = free.remove(0);
         if next >= full.len() {
             break;
@@ -38,22 +36,28 @@ fn solve(filename: &str) -> (usize, usize) {
 
     let p1 = full.iter().enumerate().map(|(i, x)| i * x).sum::<usize>();
 
-    let mut filesystem = Vec::new();
+    let mut filesystem = vec![];
 
     for (i, c) in input.chars().enumerate() {
         let c = c as usize - '0' as usize;
         if i % 2 == 0 {
             filesystem.push(Space::File(c, i / 2));
-        } else {
-            if c != 0 {
-                filesystem.push(Space::Empty(c));
-            }
+        } else if c != 0 {
+            filesystem.push(Space::Empty(c));
         }
     }
 
-    loop {
-        if !step(&mut filesystem) {
-            break;
+    let mut finished = false;
+    let mut take = filesystem.len();
+
+    while !finished {
+        match step(&mut filesystem, take) {
+            Some(i) => {
+                take = i;
+            }
+            None => {
+                finished = true;
+            }
         }
     }
 
@@ -66,28 +70,30 @@ enum Space {
     File(usize, usize),
 }
 
-fn step(filesystem: &mut Vec<Space>) -> bool {
-    for (i, f) in filesystem.iter().enumerate().rev() {
+fn step(filesystem: &mut Vec<Space>, take: usize) -> Option<usize> {
+    for (i, f) in filesystem.iter().enumerate().take(take).rev() {
         let f = f.clone();
         if let Space::File(size_f, _) = f {
-            for (j, e) in filesystem.iter().enumerate() {
+            for (j, e) in filesystem.iter().enumerate().take(i) {
                 let e = e.clone();
                 if let Space::Empty(size_e) = e {
-                    if j < i && size_e >= size_f {
+                    if size_e >= size_f {
                         filesystem.remove(i);
                         filesystem.insert(i, Space::Empty(size_f));
                         filesystem.remove(j);
                         filesystem.insert(j, f);
+                        let mut add = 0;
                         if size_e > size_f {
                             filesystem.insert(j + 1, Space::Empty(size_e - size_f));
+                            add = 1;
                         }
-                        return true;
+                        return Some(i + add);
                     }
                 }
             }
         }
     }
-    false
+    None
 }
 
 fn checksum(filesystem: &[Space]) -> usize {
