@@ -1,0 +1,8 @@
+#!/bin/bash
+
+cd $1
+cargo new $2
+cd $2
+cargo add stopwatch --path ../../helpers/stopwatch
+cp ../../helpers/main.txt ./src/main.rs
+code . && exit
