@@ -1,7 +1,50 @@
 #!/bin/bash
 
-cd $1
-cargo new $2
-cd $2
+# Load the environment file
+if [[ -f ./helpers/.env ]]; then
+    source ./helpers/.env
+else
+    echo "Environment file (.env) not found. Please create one and add your session cookie."
+    exit 1
+fi
+
+# Ensure the SESSION variable is set
+if [[ -z "$SESSION" ]]; then
+    echo "Session cookie is not set in the .env file. Please add it as SESSION=your_session_cookie."
+    exit 1
+fi
+
+# Read year and day from arguments
+YEAR=$1
+DAY=$2
+FOLDER=d$(printf "%02d" $DAY)
+
+cd $YEAR
+cargo new $FOLDER
+cd $FOLDER
 cargo add stopwatch --path ../../helpers/stopwatch
 cp ../../helpers/main.txt ./src/main.rs
+
+
+# Check if arguments are provided
+if [[ -z "$YEAR" || -z "$DAY" ]]; then
+    echo "Usage: $0 <year> <day>"
+    exit 1
+fi
+
+# URL to fetch the input
+URL="https://adventofcode.com/$YEAR/day/$DAY/input"
+
+# Output file
+OUTPUT_FILE="input.txt"
+
+# Fetch the input
+curl -s -b "session=$SESSION" -o "$OUTPUT_FILE" "$URL"
+
+# Check if the fetch was successful
+if [[ $? -eq 0 ]]; then
+    echo "Input for Day $DAY, $YEAR has been saved to $OUTPUT_FILE"
+else
+    echo "Failed to fetch input. Please check your session cookie and internet connection."
+    exit 1
+fi
