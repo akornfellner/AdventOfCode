@@ -48,3 +48,5 @@ else
     echo "Failed to fetch input. Please check your session cookie and internet connection."
     exit 1
 fi
+
+code .
