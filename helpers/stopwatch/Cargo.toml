@@ -1,0 +1,11 @@
+[package]
+name = "stopwatch"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+quote = "*"
+syn = { version = "*", features = ["full"]}
+
+[lib]
+proc-macro = true
