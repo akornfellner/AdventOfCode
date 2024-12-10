@@ -2,8 +2,8 @@ use std::collections::HashSet;
 
 fn main() {
     let (p1, p2) = solve("input.txt");
-    println!("Part one: {}", p1);
-    println!("Part two: {}", p2);
+    println!("Part one: {p1}");
+    println!("Part two: {p2}");
 }
 
 fn solve(filename: &str) -> (usize, usize) {
