@@ -8,7 +8,7 @@ fn main() {
 }
 
 fn solve(filename: &str) -> (usize, usize) {
-    let input = std::fs::read_to_string(filename).unwrap();
+    let input = std::fs::read_to_string(filename).unwrap().trim().to_string();
 
     (0, 0)
 }
