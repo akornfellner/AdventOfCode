@@ -13,7 +13,6 @@ pub fn time(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let fn_inputs = input_fn.sig.inputs;
     let fn_output = input_fn.sig.output;
 
-    // Generate the new function with logging
     let expanded = quote! {
         fn #fn_name(#fn_inputs) #fn_output {
             let start = std::time::Instant::now();
