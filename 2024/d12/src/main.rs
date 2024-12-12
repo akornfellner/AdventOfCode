@@ -68,8 +68,7 @@ fn find_region(
 
     visited.insert((x, y));
 
-    let neighbors = get_neighbors(x, y, field, visited);
-    let perimeters = get_perimeters(x, y, field);
+    let (neighbors, perimeters) = get_neighbors(x, y, field, visited);
     let mut area = 1;
 
     if perimeters[0] == 1 {
@@ -103,7 +102,13 @@ fn find_region(
     area
 }
 
-fn get_perimeters(x: usize, y: usize, field: &[Vec<char>]) -> [usize; 4] {
+fn get_neighbors(
+    x: usize,
+    y: usize,
+    field: &[Vec<char>],
+    visited: &mut Set,
+) -> (Vec<(usize, usize)>, [usize; 4]) {
+    let mut neighbors = vec![];
     let mut perimeters = [0, 0, 0, 0];
     let possible = [(0, 1), (1, 0), (0, -1), (-1, 0)];
     let x = x as i32;
@@ -113,46 +118,21 @@ fn get_perimeters(x: usize, y: usize, field: &[Vec<char>]) -> [usize; 4] {
         let nx = x + dx;
         let ny = y + dy;
 
-        if !(nx >= 0
-            && nx < field.len() as i32
-            && ny >= 0
-            && ny < field[0].len() as i32
-            && field[nx as usize][ny as usize] == field[x as usize][y as usize])
-        {
-            perimeters[i] = 1;
-        }
-    }
-
-    perimeters
-}
-
-fn get_neighbors(
-    x: usize,
-    y: usize,
-    field: &[Vec<char>],
-    visited: &mut Set,
-) -> Vec<(usize, usize)> {
-    let mut neighbors = vec![];
-    let possible = [(0, 1), (1, 0), (0, -1), (-1, 0)];
-    let x = x as i32;
-    let y = y as i32;
-
-    for (dx, dy) in &possible {
-        let nx = x + dx;
-        let ny = y + dy;
-
         if nx >= 0
             && nx < field.len() as i32
             && ny >= 0
             && ny < field[0].len() as i32
             && field[nx as usize][ny as usize] == field[x as usize][y as usize]
-            && !visited.contains(&(nx as usize, ny as usize))
         {
-            neighbors.push((nx as usize, ny as usize));
+            if !visited.contains(&(nx as usize, ny as usize)) {
+                neighbors.push((nx as usize, ny as usize));
+            }
+        } else {
+            perimeters[i] = 1;
         }
     }
 
-    neighbors
+    (neighbors, perimeters)
 }
 
 fn get_sides(lines: Set) -> usize {
