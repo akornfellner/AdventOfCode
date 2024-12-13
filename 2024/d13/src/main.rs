@@ -1,6 +1,3 @@
-use stopwatch::time;
-
-#[time]
 fn main() {
     let (p1, p2) = solve("input.txt");
     println!("Part one: {}", p1);
