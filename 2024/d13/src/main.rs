@@ -21,7 +21,7 @@ fn solve(filename: &str) -> (usize, usize) {
             let (xb, yb) = (machine.b.0 as f64, machine.b.1 as f64);
             let (xp, yp) = (machine.prize.0 as f64 + add, machine.prize.1 as f64 + add);
             let a = (xp * yb - xb * yp) / (xa * yb - xb * ya);
-            let b = (xa * yp - xp * ya) / (xa * yb - xb * ya);
+            let b = (xp - xa * a) / xb;
             if a.fract() == 0.0 && b.fract() == 0.0 {
                 *p += 3 * a as usize + b as usize;
             }
