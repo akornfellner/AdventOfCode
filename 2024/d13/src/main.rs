@@ -10,10 +10,7 @@ fn solve(filename: &str) -> (usize, usize) {
         .trim()
         .to_string();
 
-    let machines = input
-        .split("\n\n")
-        .map(Machine::from)
-        .collect::<Vec<Machine>>();
+    let machines: Vec<Machine> = input.split("\n\n").map(Machine::from).collect();
 
     let mut result = [0, 0];
 
@@ -26,9 +23,7 @@ fn solve(filename: &str) -> (usize, usize) {
             let a = (xp * yb - xb * yp) / (xa * yb - xb * ya);
             let b = (xa * yp - xp * ya) / (xa * yb - xb * ya);
             if a.fract() == 0.0 && b.fract() == 0.0 {
-                let a = a as usize;
-                let b = b as usize;
-                *p += 3 * a + b;
+                *p += 3 * a as usize + b as usize;
             }
         }
     }
@@ -45,7 +40,7 @@ struct Machine {
 
 impl Machine {
     fn from(machine: &str) -> Self {
-        let lines = machine.split('\n').collect::<Vec<&str>>();
+        let lines = machine.lines().collect::<Vec<&str>>();
         let a = lines[0];
         let b = lines[1];
         let prize = lines[2];
