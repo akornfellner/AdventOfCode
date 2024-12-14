@@ -43,7 +43,8 @@ fn solve(filename: &str, field: (i32, i32)) -> (i32, i32) {
     let (mut min_x_v, mut min_y_v) = variance(&r);
     let (mut x_steps, mut y_steps) = (0, 0);
 
-    for i in 0..103 {
+    for i in 1..103 {
+        r.iter_mut().for_each(|robot| robot.step(field, 1));
         let (var_x, var_y) = variance(&r);
         if var_x < min_x_v {
             min_x_v = var_x;
@@ -53,7 +54,6 @@ fn solve(filename: &str, field: (i32, i32)) -> (i32, i32) {
             min_y_v = var_y;
             y_steps = i;
         }
-        r.iter_mut().for_each(|robot| robot.step(field, 1));
     }
 
     let mut p2 = 0;
