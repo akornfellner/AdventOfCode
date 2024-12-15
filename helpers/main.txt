@@ -1,8 +1,10 @@
+use std::env::args;
 use stopwatch::time;
 
 #[time]
 fn main() {
-    let (p1, p2) = solve("input_test.txt");
+    let filename = args().nth(1).unwrap_or("input_test.txt".to_string());
+    let (p1, p2) = solve(&filename);
     println!("Part one: {}", p1);
     println!("Part two: {}", p2);
 }
