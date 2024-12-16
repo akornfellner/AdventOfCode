@@ -1,5 +1,5 @@
-use pathfinding::prelude::dijkstra;
-use std::env::args;
+use pathfinding::prelude::yen;
+use std::{collections::HashSet, env::args};
 use stopwatch::time;
 
 #[time]
@@ -31,15 +31,26 @@ fn solve(filename: &str) -> (usize, usize) {
         }
     }
 
-    let result = dijkstra(
+    let result = yen(
         &(start, Direction::Right),
         |&(pos, dir)| successors(pos, &mut dir.clone(), &field),
         |&(pos, _)| pos == end,
+        50, // if your solution is not working, try to increase this value!!!
     );
 
-    let p1 = result.map(|(_, cost)| cost).unwrap_or(0);
+    let min_costs = result[0].1;
 
-    (p1, 0)
+    let mut tiles = HashSet::new();
+
+    for (path, costs) in result {
+        if costs == min_costs {
+            for (pos, _) in path {
+                tiles.insert(pos);
+            }
+        }
+    }
+
+    (min_costs, tiles.len())
 }
 
 type State = ((usize, usize), Direction);
