@@ -1,8 +1,6 @@
 use pathfinding::prelude::yen;
 use std::{collections::HashSet, env::args};
-use stopwatch::time;
 
-#[time]
 fn main() {
     let filename = args().nth(1).unwrap_or("input_test.txt".to_string());
     let (p1, p2) = solve(&filename);
@@ -35,7 +33,7 @@ fn solve(filename: &str) -> (usize, usize) {
         &(start, Direction::Right),
         |&(pos, dir)| successors(pos, &mut dir.clone(), &field),
         |&(pos, _)| pos == end,
-        50, // if your solution is not working, try to increase this value!!!
+        15, // if your solution is not working, try to increase this value!!!
     );
 
     let min_costs = result[0].1;
