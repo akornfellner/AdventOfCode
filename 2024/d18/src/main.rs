@@ -50,9 +50,7 @@ fn solve(filename: &str) -> (usize, String) {
         }
         match get_path(&grid) {
             Some(new_path) => {
-                if new_path.len() > path.len() {
-                    path = new_path;
-                }
+                path = new_path;
             }
             None => {
                 p2 = format!("{},{}", x, y);
