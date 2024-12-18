@@ -19,7 +19,7 @@ fn solve(filename: &str) -> (String, usize) {
     let mut program = Program::compile(&input);
 
     let mut starts = vec![0];
-    let mut len = 1;
+    let mut len = 0;
 
     while len < program.operations.len() {
         let mut new_starts = Vec::new();
@@ -29,24 +29,12 @@ fn solve(filename: &str) -> (String, usize) {
                 p.registers[0] = a;
                 let output = p.run();
                 if compare(&output, &p.operations) {
-                    new_starts.push(8 * start + 8 * (a - start));
+                    new_starts.push(a << 3);
                 }
             }
         }
         starts = new_starts;
         len += 1;
-    }
-
-    let mut min = usize::MAX;
-    for start in starts {
-        for a in start - 8..start + 16 {
-            let mut p = program.clone();
-            p.registers[0] = a;
-            let output = p.run();
-            if compare(&output, &p.operations) && a < min {
-                min = a;
-            }
-        }
     }
 
     let output = program.run();
@@ -56,7 +44,7 @@ fn solve(filename: &str) -> (String, usize) {
         .collect::<Vec<String>>()
         .join(",");
 
-    (p1, min)
+    (p1, starts[0] >> 3)
 }
 
 fn compare(output: &[usize], operations: &[usize]) -> bool {
