@@ -1,7 +1,4 @@
-use std::{
-    collections::{HashMap, HashSet},
-    env::args,
-};
+use std::{collections::HashMap, env::args};
 use stopwatch::time;
 
 #[time]
@@ -27,72 +24,22 @@ fn solve(filename: &str) -> (usize, usize) {
         .lines()
         .map(|s| s.to_string())
         .collect::<Vec<String>>();
-    let mut possible: HashSet<String> = HashSet::new();
-    let mut not_possible: HashSet<String> = HashSet::new();
 
     patterns.sort_by_key(|b| std::cmp::Reverse(b.len()));
 
-    let mut pos_designs = vec![];
-
     let mut p1 = 0;
-
-    for design in &designs {
-        if check(design, &patterns, &mut possible, &mut not_possible) {
-            p1 += 1;
-            pos_designs.push(design.to_string());
-        }
-    }
-
     let mut p2 = 0;
     let mut dp: HashMap<String, usize> = HashMap::new();
 
-    for design in pos_designs {
-        p2 += count(&design, &patterns, &mut dp);
+    for design in &designs {
+        let c = count(design, &patterns, &mut dp);
+        if c > 0 {
+            p1 += 1;
+        }
+        p2 += c;
     }
 
     (p1, p2)
-}
-
-fn check(
-    design: &str,
-    patterns: &[String],
-    possible: &mut HashSet<String>,
-    not_possible: &mut HashSet<String>,
-) -> bool {
-    if possible.contains(design) {
-        return true;
-    }
-    if not_possible.contains(design) {
-        return false;
-    }
-
-    let mut result = false;
-
-    for pattern in patterns {
-        if pattern.len() > design.len() {
-            continue;
-        }
-        if pattern.len() == design.len() {
-            if pattern == design {
-                result = true;
-                break;
-            }
-            continue;
-        }
-        if design.starts_with(pattern)
-            && check(&design[pattern.len()..], patterns, possible, not_possible)
-        {
-            result = true;
-        }
-    }
-
-    if result {
-        possible.insert(design.to_string());
-    } else {
-        not_possible.insert(design.to_string());
-    }
-
-    result
 }
 
 fn count(design: &str, patterns: &[String], dp: &mut HashMap<String, usize>) -> usize {
