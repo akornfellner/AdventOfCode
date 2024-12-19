@@ -1,4 +1,7 @@
-use std::{collections::HashSet, env::args};
+use std::{
+    collections::{HashMap, HashSet},
+    env::args,
+};
 use stopwatch::time;
 
 #[time]
@@ -29,15 +32,25 @@ fn solve(filename: &str) -> (usize, usize) {
 
     patterns.sort_by_key(|b| std::cmp::Reverse(b.len()));
 
+    let mut pos_designs = vec![];
+
     let mut p1 = 0;
 
     for design in &designs {
         if check(design, &patterns, &mut possible, &mut not_possible) {
             p1 += 1;
+            pos_designs.push(design.to_string());
         }
     }
 
-    (p1, 0)
+    let mut p2 = 0;
+    let mut dp: HashMap<String, usize> = HashMap::new();
+
+    for design in pos_designs {
+        p2 += count(&design, &patterns, &mut dp);
+    }
+
+    (p1, p2)
 }
 
 fn check(
@@ -78,6 +91,33 @@ fn check(
     } else {
         not_possible.insert(design.to_string());
     }
+
+    result
+}
+
+fn count(design: &str, patterns: &[String], dp: &mut HashMap<String, usize>) -> usize {
+    if dp.contains_key(design) {
+        return dp[design];
+    }
+
+    let mut result = 0;
+
+    for pattern in patterns {
+        if pattern.len() > design.len() {
+            continue;
+        }
+        if pattern.len() == design.len() {
+            if pattern == design {
+                result += 1;
+            }
+            continue;
+        }
+        if design.starts_with(pattern) {
+            result += count(&design[pattern.len()..], patterns, dp);
+        }
+    }
+
+    dp.insert(design.to_string(), result);
 
     result
 }
