@@ -1,10 +1,5 @@
-use std::{
-    collections::{HashMap, HashSet},
-    env::args,
-};
-use stopwatch::time;
+use std::{collections::HashMap, env::args};
 
-#[time]
 fn main() {
     let filename = args().nth(1).unwrap_or("input_test.txt".to_string());
     let (p1, p2) = solve(&filename);
@@ -56,36 +51,33 @@ fn solve(filename: &str) -> (usize, usize) {
         path.insert(current, steps);
     }
 
-    let mut cheats = vec![];
+    let p: Vec<(usize, usize)> = path.keys().cloned().collect();
 
-    for ((x, y), _) in &path {
-        for cheat in cheat((*x, *y), &field, &path) {
-            cheats.push(cheat);
-        }
-    }
+    let mut p1 = 0;
+    let mut p2 = 0;
 
-    let p1 = cheats.iter().filter(|x| **x >= 100).count();
-
-    (p1, 0)
-}
-
-fn cheat((x, y): (usize, usize), field: &[Vec<char>], path: &Path) -> Vec<usize> {
-    let mut result = vec![];
-    for neighbor in get_neighbors((x, y), field, '#') {
-        for neighbor2 in get_neighbors(neighbor, field, '.') {
-            if let Some(steps) = path.get(&neighbor2) {
-                if *steps > path[&(x, y)] + 2 {
-                    result.push(*steps - path[&(x, y)] - 2);
+    for (i, (x1, y1)) in p.iter().enumerate() {
+        for (x2, y2) in p.iter().skip(i + 1) {
+            let d = (*x1 as isize - *x2 as isize).abs() + (*y1 as isize - *y2 as isize).abs();
+            let time = ((path[&(*x1, *y1)] as isize) - (path[&(*x2, *y2)] as isize)).abs() - d;
+            if time >= 100 {
+                if d == 2 {
+                    p1 += 1;
+                } else if d <= 20 {
+                    p2 += 1;
                 }
             }
         }
     }
-    result
+
+    p2 += p1;
+
+    (p1, p2)
 }
 
 fn get_next((x, y): (usize, usize), last: (usize, usize), field: &[Vec<char>]) -> (usize, usize) {
     let mut next = (0, 0);
-    for neighbor in get_neighbors((x, y), field, '.') {
+    for neighbor in get_neighbors((x, y), field) {
         if neighbor != last {
             next = neighbor;
             break;
@@ -96,18 +88,18 @@ fn get_next((x, y): (usize, usize), last: (usize, usize), field: &[Vec<char>]) -
 
 type Path = HashMap<(usize, usize), usize>;
 
-fn get_neighbors((x, y): (usize, usize), field: &[Vec<char>], c: char) -> Vec<(usize, usize)> {
+fn get_neighbors((x, y): (usize, usize), field: &[Vec<char>]) -> Vec<(usize, usize)> {
     let mut neighbors = vec![];
-    if x > 0 && field[y][x - 1] == c {
+    if x > 0 && field[y][x - 1] == '.' {
         neighbors.push((x - 1, y));
     }
-    if x < field[0].len() - 1 && field[y][x + 1] == c {
+    if x < field[0].len() - 1 && field[y][x + 1] == '.' {
         neighbors.push((x + 1, y));
     }
-    if y > 0 && field[y - 1][x] == c {
+    if y > 0 && field[y - 1][x] == '.' {
         neighbors.push((x, y - 1));
     }
-    if y < field.len() - 1 && field[y + 1][x] == c {
+    if y < field.len() - 1 && field[y + 1][x] == '.' {
         neighbors.push((x, y + 1));
     }
     neighbors
