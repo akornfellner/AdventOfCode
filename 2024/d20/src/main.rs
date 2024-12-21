@@ -1,5 +1,7 @@
-use std::{collections::HashMap, env::args};
+use std::env::args;
+use stopwatch::time;
 
+#[time]
 fn main() {
     let filename = args().nth(1).unwrap_or("input_test.txt".to_string());
     let (p1, p2) = solve(&filename);
@@ -35,31 +37,25 @@ fn solve(filename: &str) -> (usize, usize) {
         field.push(row);
     }
 
-    let mut path: Path = HashMap::new();
-    path.insert(start, 0);
+    let mut path = vec![start];
 
     let mut last = start;
     let mut current = start;
-
-    let mut steps = 0;
 
     while current != end {
         let tmp = current;
         current = get_next(current, last, &field);
         last = tmp;
-        steps += 1;
-        path.insert(current, steps);
+        path.push(current);
     }
-
-    let p: Vec<(usize, usize)> = path.keys().cloned().collect();
 
     let mut p1 = 0;
     let mut p2 = 0;
 
-    for (i, (x1, y1)) in p.iter().enumerate() {
-        for (x2, y2) in p.iter().skip(i + 1) {
+    for (i, (x1, y1)) in path.iter().enumerate() {
+        for (j, (x2, y2)) in path.iter().enumerate().skip(i + 100) {
             let d = (*x1 as isize - *x2 as isize).abs() + (*y1 as isize - *y2 as isize).abs();
-            let time = ((path[&(*x1, *y1)] as isize) - (path[&(*x2, *y2)] as isize)).abs() - d;
+            let time = j as isize - i as isize - d;
             if time >= 100 {
                 if d == 2 {
                     p1 += 1;
@@ -85,8 +81,6 @@ fn get_next((x, y): (usize, usize), last: (usize, usize), field: &[Vec<char>]) -
     }
     next
 }
-
-type Path = HashMap<(usize, usize), usize>;
 
 fn get_neighbors((x, y): (usize, usize), field: &[Vec<char>]) -> Vec<(usize, usize)> {
     let mut neighbors = vec![];
