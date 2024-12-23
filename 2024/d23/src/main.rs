@@ -1,4 +1,4 @@
-use std::{collections::HashSet, env::args, vec};
+use std::{collections::HashSet, env::args};
 use stopwatch::time;
 
 #[time]
