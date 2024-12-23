@@ -1,4 +1,4 @@
-use std::{collections::HashSet, env::args};
+use std::{collections::HashSet, env::args, vec};
 use stopwatch::time;
 
 #[time]
@@ -9,7 +9,7 @@ fn main() {
     println!("Part two: {}", p2);
 }
 
-fn solve(filename: &str) -> (usize, usize) {
+fn solve(filename: &str) -> (usize, String) {
     let input = std::fs::read_to_string(filename)
         .unwrap()
         .trim()
@@ -31,23 +31,29 @@ fn solve(filename: &str) -> (usize, usize) {
 
     let nodes: Vec<String> = nodes.into_iter().collect();
 
-    let circles = find_circles(&nodes, &edges, 3);
+    let circles = find_circles(&nodes, &edges, 3, false);
 
-    let mut p1 = 0;
+    let p1 = circles.iter().filter(|c| has_t(c)).count();
 
-    for circle in &circles {
-        if has_t(circle) {
-            p1 += 1;
-        }
-    }
+    let circles = find_circles(&nodes, &edges, 0, true);
 
-    (p1, 0)
+    let mut max_circle = circles.iter().max_by_key(|c| c.len()).unwrap().to_vec();
+
+    max_circle.sort();
+    let p2 = max_circle.join(",");
+
+    (p1, p2)
 }
 
-fn find_circles(nodes: &[String], edges: &HashSet<(String, String)>, k: usize) -> Vec<Vec<String>> {
-    let mut results = Vec::new();
-    let mut current_stack = Vec::new();
-    get_circle(nodes, edges, k, 0, &mut current_stack, &mut results);
+fn find_circles(
+    nodes: &[String],
+    edges: &HashSet<(String, String)>,
+    k: usize,
+    two: bool,
+) -> Vec<Vec<String>> {
+    let mut results = vec![];
+    let mut current_stack = vec![];
+    get_circle(nodes, edges, k, 0, &mut current_stack, &mut results, two);
     results
 }
 
@@ -58,8 +64,9 @@ fn get_circle(
     start: usize,
     current_stack: &mut Vec<String>,
     results: &mut Vec<Vec<String>>,
+    two: bool,
 ) {
-    if current_stack.len() == k {
+    if !two && current_stack.len() == k {
         results.push(current_stack.clone());
         return;
     }
@@ -67,6 +74,8 @@ fn get_circle(
     if start >= nodes.len() {
         return;
     }
+
+    let mut found = false;
 
     for i in start..nodes.len() {
         let candidate = &nodes[i];
@@ -78,10 +87,16 @@ fn get_circle(
         if is_valid {
             current_stack.push(candidate.clone());
 
-            get_circle(nodes, edges, k, i + 1, current_stack, results);
+            get_circle(nodes, edges, k, i + 1, current_stack, results, two);
 
             current_stack.pop();
+
+            found = true;
         }
+    }
+
+    if !found && two {
+        results.push(current_stack.clone());
     }
 }
 
