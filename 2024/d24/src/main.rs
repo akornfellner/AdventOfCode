@@ -30,6 +30,15 @@ fn solve(filename: &str) -> (usize, usize) {
 
     let mut gates = parts[1].lines().map(Gate::from).collect::<Vec<_>>();
 
+    for i in inputs.keys() {
+        if i.starts_with('x') {
+            let mut subs = vec![];
+            get_subs(i, &gates, &mut subs);
+            subs.sort();
+            println!("{}: {:?}", i, subs);
+        };
+    }
+
     while !gates.is_empty() {
         let mut new_gates = Vec::new();
         for gate in gates.iter() {
@@ -72,6 +81,18 @@ fn get_decimal(inputs: &HashMap<String, usize>, number: char) -> usize {
     }
 
     s
+}
+
+fn get_subs(input: &str, gates: &[Gate], subs: &mut Vec<String>) {
+    if input.starts_with('z') {
+        subs.push(input.to_string());
+    } else {
+        for gate in gates {
+            if gate.inputs.0 == input || gate.inputs.1 == input {
+                get_subs(&gate.output, gates, subs);
+            }
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
