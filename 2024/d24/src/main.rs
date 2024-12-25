@@ -9,7 +9,7 @@ fn main() {
     println!("Part two: {}", p2);
 }
 
-fn solve(filename: &str) -> (usize, usize) {
+fn solve(filename: &str) -> (usize, String) {
     let input = std::fs::read_to_string(filename)
         .unwrap()
         .trim()
@@ -26,20 +26,71 @@ fn solve(filename: &str) -> (usize, usize) {
         inputs.insert(name, value);
     }
 
-    let dest = get_decimal(&inputs, 'x') + get_decimal(&inputs, 'y');
-
     let mut gates = parts[1].lines().map(Gate::from).collect::<Vec<_>>();
+
+    for gate in &gates {
+        let (possible, rule) = check_gate(gate);
+        if !possible {
+            println!("{:?} {}", gate, rule);
+        }
+    }
+
+    let dest = get_decimal(&inputs, 'x') + get_decimal(&inputs, 'y');
 
     let p1 = run(&inputs, &gates);
 
-    (p1, 0)
+    swap_outputs(&mut gates, "dhg", "z06");
+    swap_outputs(&mut gates, "bhd", "z23");
+    swap_outputs(&mut gates, "nbf", "z38");
+
+    let n = run(&inputs, &gates);
+
+    println!("n: {}", dest ^ n);
+
+    let binary_result = format!("{:b}", dest ^ n);
+    println!("Binary result: {}", binary_result);
+
+    swap_outputs(&mut gates, "brk", "dpd");
+
+    let n = run(&inputs, &gates);
+
+    println!("n: {}", dest ^ n);
+
+    let mut swaps = vec!["dhg", "z06", "bhd", "z23", "nbf", "z38", "brk", "dpd"];
+    swaps.sort();
+
+    (p1, swaps.join(","))
 }
 
-#[derive(Debug, Clone, Copy)]
-enum Operation {
-    And,
-    Or,
-    Xor,
+fn swap_outputs(gates: &mut Vec<Gate>, first: &str, second: &str) {
+    let a = gates.iter().position(|gate| gate.output == first).unwrap();
+    let b = gates.iter().position(|gate| gate.output == second).unwrap();
+
+    gates[a].output = second.to_string();
+    gates[b].output = first.to_string();
+}
+
+fn check_gate(gate: &Gate) -> (bool, usize) {
+    if gate.output != "z45" && gate.output.starts_with('z') {
+        match gate.operation {
+            Operation::Xor => {}
+            _ => return (false, 1),
+        }
+    }
+
+    if !gate.output.starts_with('z')
+        && !(gate.inputs.0.starts_with('x') && gate.inputs.1.starts_with('y')
+            || gate.inputs.0.starts_with('y') && gate.inputs.1.starts_with('x'))
+    {
+        match gate.operation {
+            Operation::Xor => {
+                return (false, 2);
+            }
+            _ => {}
+        }
+    }
+
+    (true, 0)
 }
 
 fn run(inputs: &HashMap<String, usize>, gates: &[Gate]) -> usize {
@@ -80,6 +131,13 @@ fn get_decimal(inputs: &HashMap<String, usize>, number: char) -> usize {
     }
 
     s
+}
+
+#[derive(Debug, Clone, Copy)]
+enum Operation {
+    And,
+    Or,
+    Xor,
 }
 
 #[derive(Debug, Clone)]
