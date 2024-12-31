@@ -4,4 +4,4 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-stopwatch = { version = "0.1.0", path = "../../helpers/stopwatch" }
+pathfinding = "4.13.0"

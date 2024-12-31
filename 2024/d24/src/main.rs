@@ -1,7 +1,6 @@
+use pathfinding::prelude::bfs;
 use std::{collections::HashMap, env::args};
-use stopwatch::time;
 
-#[time]
 fn main() {
     let filename = args().nth(1).unwrap_or("input_test.txt".to_string());
     let (p1, p2) = solve(&filename);
@@ -28,41 +27,77 @@ fn solve(filename: &str) -> (usize, String) {
 
     let mut gates = parts[1].lines().map(Gate::from).collect::<Vec<_>>();
 
+    let dest = get_decimal(&inputs, 'x') + get_decimal(&inputs, 'y');
+    let p1 = run(&inputs, &gates);
+
+    let mut ones = vec![];
+    let mut twos = vec![];
+
     for gate in &gates {
         let (possible, rule) = check_gate(gate);
         if !possible {
-            println!("{:?} {}", gate, rule);
+            match rule {
+                1 => ones.push(gate.output.clone()),
+                2 => twos.push(gate.output.clone()),
+                _ => {}
+            }
         }
     }
 
-    let dest = get_decimal(&inputs, 'x') + get_decimal(&inputs, 'y');
+    let mut swaps = vec![];
 
-    let p1 = run(&inputs, &gates);
-
-    swap_outputs(&mut gates, "dhg", "z06");
-    swap_outputs(&mut gates, "bhd", "z23");
-    swap_outputs(&mut gates, "nbf", "z38");
+    for two in &twos {
+        let result = bfs(
+            two,
+            |output| successors(output, &gates),
+            |output| output.starts_with('z'),
+        );
+        let s = result.unwrap().iter().last().unwrap().to_string();
+        let s = s
+            .chars()
+            .skip(1)
+            .collect::<String>()
+            .parse::<usize>()
+            .unwrap()
+            - 1;
+        let s = format!("z{:02}", s);
+        swap_outputs(&mut gates, two, &s);
+        swaps.push(two.to_string());
+        swaps.push(s);
+    }
 
     let n = run(&inputs, &gates);
+    let n = format!("{:b}", dest ^ n);
 
-    println!("n: {}", dest ^ n);
+    let n = n.chars().rev().take_while(|&c| c == '0').count();
 
-    let binary_result = format!("{:b}", dest ^ n);
-    println!("Binary result: {}", binary_result);
+    let x = format!("x{n}");
 
-    swap_outputs(&mut gates, "brk", "dpd");
+    let mut last = vec![];
+
+    for gate in &gates {
+        if gate.inputs.0 == x || gate.inputs.1 == x {
+            last.push(gate.output.clone());
+        }
+    }
+
+    swap_outputs(&mut gates, &last[0], &last[1]);
+    swaps.push(last[0].clone());
+    swaps.push(last[1].clone());
 
     let n = run(&inputs, &gates);
+    let t = dest - n;
 
-    println!("n: {}", dest ^ n);
+    if t != 0 {
+        panic!("The solution is wrong!");
+    }
 
-    let mut swaps = vec!["dhg", "z06", "bhd", "z23", "nbf", "z38", "brk", "dpd"];
     swaps.sort();
 
     (p1, swaps.join(","))
 }
 
-fn swap_outputs(gates: &mut Vec<Gate>, first: &str, second: &str) {
+fn swap_outputs(gates: &mut [Gate], first: &str, second: &str) {
     let a = gates.iter().position(|gate| gate.output == first).unwrap();
     let b = gates.iter().position(|gate| gate.output == second).unwrap();
 
@@ -78,19 +113,26 @@ fn check_gate(gate: &Gate) -> (bool, usize) {
         }
     }
 
-    if !gate.output.starts_with('z')
-        && !(gate.inputs.0.starts_with('x') && gate.inputs.1.starts_with('y')
-            || gate.inputs.0.starts_with('y') && gate.inputs.1.starts_with('x'))
+    if !(gate.output.starts_with('z')
+        || gate.inputs.0.starts_with('x') && gate.inputs.1.starts_with('y')
+        || gate.inputs.0.starts_with('y') && gate.inputs.1.starts_with('x'))
     {
-        match gate.operation {
-            Operation::Xor => {
-                return (false, 2);
-            }
-            _ => {}
+        if let Operation::Xor = gate.operation {
+            return (false, 2);
         }
     }
 
     (true, 0)
+}
+
+fn successors(output: &str, gates: &[Gate]) -> Vec<String> {
+    let mut successors = vec![];
+    for gate in gates {
+        if gate.inputs.0 == output || gate.inputs.1 == output {
+            successors.push(gate.output.clone());
+        }
+    }
+    successors
 }
 
 fn run(inputs: &HashMap<String, usize>, gates: &[Gate]) -> usize {
