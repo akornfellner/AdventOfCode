@@ -59,8 +59,8 @@ fn check_invalid2(number: usize) -> bool {
             .collect::<Vec<String>>();
 
         let mut result = true;
-        for i in 0..parts.len() - 1 {
-            if parts[i] != parts[i + 1] {
+        for i in 1..parts.len() {
+            if parts[0] != parts[i] {
                 result = false;
                 break;
             }
