@@ -16,39 +16,42 @@ fn solve(filename: &str) -> (usize, usize) {
         .to_string();
 
     let mut p1 = 0;
+    let mut p2 = 0;
 
     for line in input.lines() {
-        let mut max = 0;
-        let mut index = 0;
+        let mut last_index = 0;
+        let mut sum = 0;
 
-        for i in 0..line.len() - 1 {
-            let number = line.chars().nth(i).unwrap() as usize - '0' as usize;
-            if number > max {
-                max = number;
-                index = i;
-            }
+        for level in 0..2 {
+            let level = 2 - level - 1;
+            let (max, new_last_index) = find_max(&line[last_index..], level);
+            sum += max as u64 * (10_u64).pow(level.try_into().unwrap());
+            last_index += new_last_index + 1;
         }
 
-        let mut max2 = 0;
+        p1 += sum as usize;
 
-        for i in (index + 1)..line.len() {
-            let number = line.chars().nth(i).unwrap() as usize - '0' as usize;
-            if number > max2 {
-                max2 = number;
-            }
+        let mut sum = 0;
+        let mut last_index = 0;
+
+        for level in 0..12 {
+            let level = 12 - level - 1;
+            let (max, new_last_index) = find_max(&line[last_index..], level);
+            sum += max as u64 * (10_u64).pow(level.try_into().unwrap());
+            last_index += new_last_index + 1;
         }
 
-        p1 += max * 10 + max2;
+        p2 += sum as usize;
     }
 
-    (p1, 0)
+    (p1, p2)
 }
 
 fn find_max(s: &str, level: usize) -> (usize, usize) {
     let mut max = 0;
     let mut index = 0;
 
-    for i in 0..s.len() - level - 1 {
+    for i in 0..s.len() - level {
         let number = s.chars().nth(i).unwrap() as usize - '0' as usize;
         if number > max {
             max = number;
