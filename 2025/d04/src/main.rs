@@ -54,6 +54,11 @@ fn solve(filename: &str) -> (usize, usize) {
         iteration += 1;
     }
 
+    println!("Total iterations: {}", iteration);
+
+    let final_grid = print_grid(&grid);
+    std::fs::write("final_grid.txt", final_grid).unwrap();
+
     (p1, p2)
 }
 
@@ -83,4 +88,15 @@ fn count_neighbors(x: usize, y: usize, grid: &[Vec<bool>]) -> Vec<(usize, usize)
     }
 
     neighbors
+}
+
+fn print_grid(grid: &[Vec<bool>]) -> String {
+    let mut result = String::new();
+    for row in grid {
+        for &cell in row {
+            result.push(if cell { '@' } else { '.' });
+        }
+        result.push('\n');
+    }
+    result
 }
